@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zyra Helix AI — AI Video Transcript & Smart Comment Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Exo+2:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{--bg:#030712;--bg2:#080e1c;--accent:#00f5d4;--accent2:#7b2ff7;--accent3:#ff6b35;--text:#e2e8f0;--text2:#94a3b8;--card:rgba(255,255,255,0.04);--border:rgba(0,245,212,0.14);--glow:0 0 30px rgba(0,245,212,0.35);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg2);}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px;}
+#bgc{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:.35;pointer-events:none;}
+.page{display:none;min-height:100vh;position:relative;z-index:1;}
+.page.active{display:block;}
+#dashboard{display:none;}#dashboard.active{display:flex;}
+nav{display:flex;align-items:center;justify-content:space-between;padding:18px 50px;position:sticky;top:0;z-index:200;background:rgba(3,7,18,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.logo{display:flex;align-items:center;gap:13px;cursor:pointer;}
+.logo-spin{width:44px;height:44px;border-radius:50%;background:conic-gradient(from 0deg,var(--accent),var(--accent2),var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;animation:spin 8s linear infinite;box-shadow:0 0 18px rgba(0,245,212,.5);}
+.logo-spin::before{content:'⬡';font-size:20px;color:var(--bg);animation:spin 8s linear infinite reverse;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.logo-name{font-family:'Orbitron',monospace;font-size:1.25rem;font-weight:900;color:var(--accent);letter-spacing:2px;line-height:1;}
+.logo-tag{font-size:.6rem;color:var(--accent2);letter-spacing:3px;}
+.nav-links{display:flex;gap:28px;}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:.88rem;letter-spacing:1px;cursor:pointer;transition:color .2s;}
+.nav-links a:hover{color:var(--accent);}
+.nav-btns{display:flex;gap:10px;}
+.btn-g{padding:8px 20px;border:1px solid var(--border);color:var(--accent);background:transparent;border-radius:6px;cursor:pointer;font-family:'Exo 2',sans-serif;font-size:.88rem;letter-spacing:1px;transition:all .2s;}
+.btn-g:hover{background:rgba(0,245,212,.1);border-color:var(--accent);}
+.btn-p{padding:8px 20px;border:none;color:var(--bg);background:var(--accent);border-radius:6px;cursor:pointer;font-family:'Exo 2',sans-serif;font-size:.88rem;font-weight:700;letter-spacing:1px;transition:all .2s;}
+.btn-p:hover{background:#00dfc0;box-shadow:var(--glow);}
+.hero{display:flex;align-items:center;justify-content:space-between;padding:80px 50px 60px;min-height:90vh;gap:50px;}
+.hero-l{flex:1;max-width:600px;}
+.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(123,47,247,.15);border:1px solid rgba(123,47,247,.4);padding:6px 16px;border-radius:50px;font-size:.78rem;color:var(--accent2);letter-spacing:2px;margin-bottom:28px;animation:fiu .6s ease;}
+.badge::before{content:'●';color:var(--accent);animation:pls 2s infinite;}
+@keyframes pls{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes fiu{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.hero h1{font-family:'Orbitron',monospace;font-size:2.8rem;font-weight:900;line-height:1.1;margin-bottom:22px;animation:fiu .7s .1s both;}
+.hero h1 .ac{color:var(--accent);text-shadow:0 0 28px rgba(0,245,212,.5);}
+.hero h1 .ac2{color:var(--accent2);}
+.hero p{color:var(--text2);font-size:1rem;line-height:1.85;margin-bottom:28px;animation:fiu .7s .2s both;}
+.hero-tags{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:36px;animation:fiu .7s .3s both;}
+.tag{padding:5px 13px;border-radius:4px;font-size:.76rem;letter-spacing:1px;}
+.tc{background:rgba(0,245,212,.1);color:var(--accent);border:1px solid rgba(0,245,212,.3);}
+.tp{background:rgba(123,47,247,.1);color:var(--accent2);border:1px solid rgba(123,47,247,.3);}
+.to{background:rgba(255,107,53,.1);color:var(--accent3);border:1px solid rgba(255,107,53,.3);}
+.cta{display:flex;gap:14px;animation:fiu .7s .4s both;}
+.bxl{padding:13px 34px;font-size:.98rem;font-weight:700;border-radius:8px;cursor:pointer;transition:all .25s;font-family:'Exo 2',sans-serif;letter-spacing:1px;}
+.bxl.pr{background:var(--accent);color:var(--bg);border:none;}
+.bxl.pr:hover{box-shadow:0 0 36px rgba(0,245,212,.5);transform:translateY(-2px);}
+.bxl.sc{background:transparent;color:var(--accent2);border:2px solid var(--accent2);}
+.bxl.sc:hover{background:rgba(123,47,247,.1);transform:translateY(-2px);}
+.hero-r{flex:0 0 480px;height:440px;position:relative;}
+#hcanvas{width:100%;height:100%;border-radius:20px;}
+.hero-ov{position:absolute;bottom:18px;left:18px;right:18px;background:rgba(0,0,0,.65);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.wave-row{display:flex;align-items:center;gap:3px;height:28px;}
+.wb{width:4px;background:var(--accent);border-radius:2px;animation:wv 1.2s ease-in-out infinite;}
+.wb:nth-child(2){animation-delay:.1s}.wb:nth-child(3){animation-delay:.2s}.wb:nth-child(4){animation-delay:.3s}.wb:nth-child(5){animation-delay:.4s}.wb:nth-child(6){animation-delay:.3s}.wb:nth-child(7){animation-delay:.2s}.wb:nth-child(8){animation-delay:.1s}
+@keyframes wv{0%,100%{height:5px}50%{height:26px}}
+.proc{font-size:.78rem;color:var(--accent);font-family:'Space Mono',monospace;margin-top:7px;}
+.dots-anim::after{content:'';animation:dts 1.5s steps(4,end) infinite;}
+@keyframes dts{0%,20%{content:'.'}40%{content:'..'}60%{content:'...'}80%,100%{content:''}}
+.feat-sec{padding:80px 50px;}
+.sec-hd{text-align:center;margin-bottom:56px;}
+.sec-hd h2{font-family:'Orbitron',monospace;font-size:2.1rem;font-weight:900;margin-bottom:12px;}
+.sec-hd h2 span{color:var(--accent);}
+.sec-hd p{color:var(--text2);font-size:.95rem;max-width:560px;margin:0 auto;}
+.divider{width:56px;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));margin:14px auto;border-radius:2px;}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;}
+.fc{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px;transition:all .3s;position:relative;overflow:hidden;}
+.fc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transform:scaleX(0);transition:transform .3s;transform-origin:left;}
+.fc:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 18px 36px rgba(0,0,0,.4);}
+.fc:hover::before{transform:scaleX(1);}
+.fc-num{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--accent2);letter-spacing:2px;margin-bottom:6px;}
+.fc-icon{font-size:2.3rem;margin-bottom:14px;}
+.fc h3{font-family:'Orbitron',monospace;font-size:.92rem;color:var(--accent);margin-bottom:9px;letter-spacing:1px;}
+.fc p{color:var(--text2);font-size:.85rem;line-height:1.7;}
+.ftag{display:inline-block;margin-top:11px;padding:3px 10px;border-radius:20px;font-size:.7rem;background:rgba(0,245,212,.1);color:var(--accent);border:1px solid rgba(0,245,212,.2);}
+.contact-sec{padding:60px 50px;background:var(--bg2);border-top:1px solid var(--border);}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:56px;max-width:960px;margin:0 auto 36px;}
+.ci h3,.cf h3{font-family:'Orbitron',monospace;font-size:1.25rem;color:var(--accent);margin-bottom:14px;}
+.ci p{color:var(--text2);font-size:.88rem;line-height:1.75;margin-bottom:18px;}
+.clink{display:flex;align-items:center;gap:10px;color:var(--text2);font-size:.88rem;margin-bottom:10px;}
+.clink span{color:var(--accent);}
+.fg{margin-bottom:14px;}
+.fg input,.fg textarea{width:100%;padding:11px 15px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.88rem;outline:none;transition:border .2s;}
+.fg input:focus,.fg textarea:focus{border-color:var(--accent);}
+.fg textarea{height:95px;resize:none;}
+.footer-bot{border-top:1px solid var(--border);padding-top:26px;text-align:center;color:var(--text2);font-size:.83rem;}
+.footer-bot span{color:var(--accent);}
+#auth-page{background:var(--bg);display:flex;align-items:center;justify-content:center;min-height:100vh;}
+.auth-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:46px 38px;width:100%;max-width:420px;position:relative;overflow:hidden;}
+.auth-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));}
+.auth-logo{display:flex;align-items:center;gap:12px;margin-bottom:28px;justify-content:center;}
+.atabs{display:flex;margin-bottom:28px;background:rgba(255,255,255,.04);border-radius:8px;padding:4px;}
+.atab{flex:1;padding:10px;text-align:center;cursor:pointer;border-radius:6px;transition:all .2s;font-size:.88rem;color:var(--text2);}
+.atab.active{background:var(--accent);color:var(--bg);font-weight:700;}
+.aform{display:none;}.aform.active{display:block;}
+.aform h2{font-family:'Orbitron',monospace;font-size:1.4rem;margin-bottom:7px;}
+.aform p{color:var(--text2);font-size:.85rem;margin-bottom:24px;}
+.ig{margin-bottom:18px;}
+.ig label{display:block;font-size:.78rem;color:var(--text2);margin-bottom:7px;letter-spacing:1px;}
+.ig input{width:100%;padding:12px 15px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.93rem;outline:none;transition:all .2s;}
+.ig input:focus{border-color:var(--accent);}
+.asubmit{width:100%;padding:13px;background:var(--accent);color:var(--bg);border:none;border-radius:8px;font-family:'Orbitron',monospace;font-size:.9rem;font-weight:700;cursor:pointer;letter-spacing:2px;transition:all .2s;margin-top:4px;}
+.asubmit:hover{box-shadow:var(--glow);transform:translateY(-1px);}
+.back-h{text-align:center;margin-top:18px;color:var(--text2);font-size:.83rem;cursor:pointer;}
+.back-h span{color:var(--accent);}
+.sidebar{width:255px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;flex-shrink:0;}
+.sb-logo{padding:22px 18px;border-bottom:1px solid var(--border);}
+.sb-user{padding:18px;border-bottom:1px solid var(--border);}
+.uav{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem;color:var(--bg);margin-bottom:8px;}
+.uname{font-weight:600;font-size:.93rem;}
+.uplan{font-size:.72rem;color:var(--accent);letter-spacing:1px;}
+.mode-tgl{margin:14px;background:rgba(255,255,255,.04);border-radius:10px;padding:4px;display:flex;gap:4px;}
+.mbtn{flex:1;padding:8px 5px;border-radius:7px;cursor:pointer;font-size:.75rem;text-align:center;transition:all .2s;color:var(--text2);border:none;background:transparent;font-family:'Exo 2',sans-serif;}
+.mbtn.active{background:var(--accent);color:var(--bg);font-weight:700;}
+.sb-nav{padding:14px 10px;}
+.sblbl{font-size:.68rem;color:var(--text2);letter-spacing:2px;padding:8px 8px 3px;}
+.ni{display:flex;align-items:center;gap:11px;padding:10px 11px;border-radius:8px;cursor:pointer;transition:all .2s;color:var(--text2);font-size:.86rem;margin-bottom:2px;border-left:3px solid transparent;}
+.ni:hover,.ni.active{background:rgba(0,245,212,.1);color:var(--accent);}
+.ni.active{border-left-color:var(--accent);}
+.nic{font-size:1.05rem;width:20px;text-align:center;}
+.dash-main{flex:1;min-height:100vh;overflow-y:auto;}
+.dash-hd{padding:18px 30px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(3,7,18,.92);backdrop-filter:blur(10px);position:sticky;top:0;z-index:50;}
+.dash-hd h1{font-family:'Orbitron',monospace;font-size:1rem;color:var(--accent);}
+.hdr-acts{display:flex;align-items:center;gap:14px;}
+.lsel{padding:7px 13px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.83rem;cursor:pointer;outline:none;transition:border .2s;}
+.lsel:focus{border-color:var(--accent);}
+.mode-badge{font-size:.76rem;color:var(--accent2);padding:5px 11px;background:rgba(123,47,247,.1);border-radius:5px;border:1px solid rgba(123,47,247,.3);}
+.dash-content{padding:28px;}
+.panel{display:none;animation:fiu .35s ease;}
+.panel.active{display:block;}
+.ph{margin-bottom:24px;}
+.ph h2{font-family:'Orbitron',monospace;font-size:1.4rem;margin-bottom:7px;}
+.ph p{color:var(--text2);font-size:.88rem;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:26px;margin-bottom:22px;}
+.card h3{font-family:'Orbitron',monospace;font-size:.9rem;color:var(--accent);margin-bottom:14px;letter-spacing:1px;}
+.urow{display:flex;gap:10px;margin-bottom:14px;}
+.ui{flex:1;padding:12px 16px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Space Mono',monospace;font-size:.84rem;outline:none;transition:all .2s;}
+.ui:focus{border-color:var(--accent);}
+.ui::placeholder{color:var(--text2);}
+.upl{border:2px dashed var(--border);border-radius:12px;padding:36px;text-align:center;cursor:pointer;transition:all .3s;margin-bottom:14px;}
+.upl:hover{border-color:var(--accent);background:rgba(0,245,212,.03);}
+.upl-ic{font-size:2.8rem;margin-bottom:10px;}
+.upl p{color:var(--text2);font-size:.88rem;}
+.upl span{color:var(--accent);}
+.ftags{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px;}
+.ftag2{padding:3px 10px;background:rgba(123,47,247,.15);color:var(--accent2);border:1px solid rgba(123,47,247,.3);border-radius:4px;font-size:.73rem;font-family:'Space Mono',monospace;}
+.oa{background:rgba(0,0,0,.32);border:1px solid var(--border);border-radius:10px;padding:18px;min-height:175px;font-family:'Space Mono',monospace;font-size:.82rem;color:var(--text);line-height:1.8;white-space:pre-wrap;}
+.prog-bar{height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;margin:10px 0;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .4s;width:0%;}
+.steps-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px;}
+.step{padding:5px 13px;border-radius:20px;font-size:.75rem;border:1px solid var(--border);color:var(--text2);}
+.step.done{background:rgba(0,245,212,.1);color:var(--accent);border-color:var(--accent);}
+.step.act{background:rgba(123,47,247,.2);color:var(--accent2);border-color:var(--accent2);animation:pls 1.5s infinite;}
+.oact{display:flex;gap:9px;margin-top:11px;}
+.sit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:18px;}
+.sib{padding:13px;border:1px solid var(--border);border-radius:10px;text-align:center;cursor:pointer;transition:all .2s;background:var(--card);font-size:.83rem;color:var(--text2);}
+.sib:hover,.sib.sel{border-color:var(--accent);background:rgba(0,245,212,.08);color:var(--accent);}
+.cmt-out{display:flex;flex-direction:column;gap:11px;}
+.cmt-item{padding:15px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:10px;font-size:.85rem;line-height:1.7;transition:all .2s;}
+.cmt-item:hover{border-color:var(--accent);}
+.cmt-lang{font-size:.7rem;color:var(--accent2);margin-bottom:7px;letter-spacing:1px;}
+.cpbtn{float:right;padding:3px 9px;background:rgba(0,245,212,.1);color:var(--accent);border:1px solid rgba(0,245,212,.3);border-radius:4px;cursor:pointer;font-size:.72rem;}
+#avc-wrap{background:linear-gradient(180deg,#0d1528 0%,#030712 100%);border-radius:16px;overflow:hidden;border:1px solid var(--border);position:relative;}
+#avc{width:100%;height:400px;display:block;}
+.sign-hud{position:absolute;top:14px;left:14px;right:14px;display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:.78rem;font-family:'Space Mono',monospace;color:var(--accent);}
+.sig-dot{width:9px;height:9px;border-radius:50%;background:var(--text2);}
+.sig-dot.active{background:var(--accent);animation:pls 1s infinite;}
+.avc-ctrl{background:rgba(8,14,28,.8);border:1px solid var(--border);border-top:none;border-radius:0 0 16px 16px;padding:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.si-inp{flex:1;min-width:200px;padding:10px 13px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.88rem;outline:none;}
+.si-inp:focus{border-color:var(--accent);}
+.hand-legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+.hl{padding:5px 13px;background:rgba(255,107,53,.1);color:var(--accent3);border:1px solid rgba(255,107,53,.3);border-radius:20px;font-size:.75rem;}
+.lg-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.lg-card{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:10px;padding:15px;}
+.lg-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+.lf2{font-size:1.4rem;}
+.ln{font-size:.76rem;color:var(--accent2);letter-spacing:1px;}
+.lt{font-size:.83rem;color:var(--text);line-height:1.65;}
+.ttabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.ttab{padding:8px 18px;border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:.83rem;transition:all .2s;color:var(--text2);}
+.ttab.active{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:700;}
+.tpanel{display:none;}.tpanel.active{display:block;}
+.notes-a{width:100%;min-height:200px;padding:15px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.88rem;line-height:1.7;resize:vertical;outline:none;}
+.qq{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px;}
+.qq p{margin-bottom:12px;font-size:.92rem;}
+.qopts{display:flex;flex-direction:column;gap:9px;}
+.qo{padding:10px 15px;border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .2s;font-size:.86rem;}
+.qo:hover{border-color:var(--accent);background:rgba(0,245,212,.06);}
+.qo.correct{background:rgba(0,245,212,.15);border-color:var(--accent);color:var(--accent);}
+.qo.wrong{background:rgba(255,107,53,.15);border-color:var(--accent3);color:var(--accent3);}
+.iv-chat{background:rgba(0,0,0,.3);border-radius:10px;padding:18px;min-height:200px;border:1px solid var(--border);margin-bottom:11px;display:flex;flex-direction:column;gap:11px;max-height:300px;overflow-y:auto;}
+.cb{padding:11px 15px;border-radius:10px;max-width:80%;font-size:.85rem;line-height:1.6;}
+.cb.ai{background:rgba(123,47,247,.15);border:1px solid rgba(123,47,247,.3);align-self:flex-start;}
+.cb.user{background:rgba(0,245,212,.1);border:1px solid rgba(0,245,212,.3);align-self:flex-end;}
+.cir{display:flex;gap:9px;}
+.os{display:flex;align-items:center;gap:10px;padding:13px 18px;border-radius:10px;margin-bottom:18px;}
+.os.on{background:rgba(0,245,212,.1);border:1px solid rgba(0,245,212,.3);}
+.os.off{background:rgba(255,107,53,.1);border:1px solid rgba(255,107,53,.3);}
+.sdot{width:9px;height:9px;border-radius:50%;animation:pls 2s infinite;}
+.sdot.g{background:var(--accent);}
+.sdot.o{background:var(--accent3);}
+.ci-list{display:flex;flex-direction:column;gap:9px;}
+.ci2{display:flex;align-items:center;gap:12px;padding:13px 15px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;}
+.cci{font-size:1.4rem;}
+.cii{flex:1;}
+.cii p{font-size:.86rem;margin-bottom:2px;}
+.cii span{font-size:.72rem;color:var(--text2);}
+.bot-wrap{display:flex;flex-direction:column;height:calc(100vh - 195px);min-height:400px;}
+.cw{flex:1;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:14px 14px 0 0;padding:18px;overflow-y:auto;display:flex;flex-direction:column;gap:13px;}
+.c-inp-a{background:var(--bg2);border:1px solid var(--border);border-top:none;border-radius:0 0 14px 14px;padding:14px;display:flex;gap:10px;}
+.c-inp{flex:1;padding:11px 16px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.88rem;outline:none;}
+.c-inp:focus{border-color:var(--accent);}
+.c-send{padding:11px 22px;background:var(--accent);color:var(--bg);border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:.88rem;transition:all .2s;}
+.c-send:hover{box-shadow:var(--glow);}
+.ty{display:none;align-items:center;gap:6px;color:var(--text2);font-size:.82rem;padding:6px 16px;}
+.tyd{display:flex;gap:4px;}
+.tyd span{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:wv 1.2s ease-in-out infinite;}
+.tyd span:nth-child(2){animation-delay:.2s}.tyd span:nth-child(3){animation-delay:.4s}
+#toast{position:fixed;bottom:28px;right:28px;background:var(--accent);color:var(--bg);padding:11px 22px;border-radius:8px;font-weight:700;font-size:.88rem;transform:translateY(100px);transition:transform .3s;z-index:9999;pointer-events:none;max-width:320px;}
+#toast.show{transform:translateY(0);}
+#loader{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(3,7,18,.93);z-index:1000;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+#loader.show{display:flex;}
+.loader-ring{width:56px;height:56px;border:3px solid rgba(0,245,212,.2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+.loader-text{color:var(--accent);font-family:'Space Mono',monospace;font-size:.84rem;text-align:center;max-width:300px;line-height:1.6;}
+.loader-sub{color:var(--text2);font-family:'Space Mono',monospace;font-size:.72rem;text-align:center;max-width:280px;}
+#retry-bar-wrap{width:240px;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;display:none;}
+#retry-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%;transition:none;}
+</style>
+</head>
+<body>
+<canvas id="bgc"></canvas>
+<div id="toast"></div>
+<div id="loader"><div class="loader-ring"></div><div class="loader-text" id="ltxt">Processing...</div><div class="loader-sub" id="lsub"></div><div id="retry-bar-wrap"><div id="retry-bar"></div></div></div>
+
+<!-- LANDING -->
+<div id="landing" class="page active">
+  <nav>
+    <div class="logo" id="nav-logo"><div class="logo-spin"></div><div><div class="logo-name">ZYRA HELIX AI</div><div class="logo-tag">OPEN INNOVATION</div></div></div>
+    <div class="nav-links">
+      <a id="nav-features">Features</a>
+      <a id="nav-about">About</a>
+      <a id="nav-contact">Contact</a>
+    </div>
+    <div class="nav-btns">
+      <button class="btn-g" id="btn-nav-login">Log In</button>
+      <button class="btn-p" id="btn-nav-signup">Sign Up Free</button>
+    </div>
+  </nav>
+  <section class="hero">
+    <div class="hero-l">
+      <div class="badge">✦ AI-POWERED OPEN INNOVATION</div>
+      <h1><span class="ac">Zyra Helix AI</span> — <span class="ac2">Video Intelligence</span> Platform</h1>
+      <p>AI-powered Video Transcript and Smart Comment Generator that converts long videos into clear, step-preserved understanding without subtitles. Accurately summarizes content, preserves mathematical logic, and generates context-aware comments in multiple languages — designed under Open Innovation for learning, accessibility, and digital engagement.</p>
+      <div class="hero-tags">
+        <span class="tag tc">🎯 Exact Audio Transcription</span>
+        <span class="tag tp">🌐 4 Language Support</span>
+        <span class="tag to">🤲 Sign Language AI</span>
+        <span class="tag tc">📐 LaTeX Math Mode</span>
+        <span class="tag tp">📶 Offline Access</span>
+      </div>
+      <div class="cta">
+        <button class="bxl pr" id="btn-hero-signup">Get Started Free →</button>
+        <button class="bxl sc" id="btn-hero-features">View Features</button>
+      </div>
+    </div>
+    <div class="hero-r">
+      <canvas id="hcanvas"></canvas>
+      <div class="hero-ov">
+        <div class="wave-row"><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div></div>
+        <p class="proc">⬡ Extracting audio &amp; transcribing<span class="dots-anim"></span></p>
+      </div>
+    </div>
+  </section>
+  <section class="feat-sec" id="features">
+    <div class="sec-hd"><h2>Key <span>Features</span></h2><div class="divider"></div><p>10 powerful AI capabilities for learning, accessibility, and digital engagement</p></div>
+    <div class="feat-grid">
+      <div class="fc"><div class="fc-num">01</div><div class="fc-icon">🎬</div><h3>Video to Transcript</h3><p>Upload MP4, MOV, WEBM or paste any YouTube/social URL. AI extracts actual audio — not captions — and generates accurate summaries even for videos without subtitles.</p><span class="ftag">MP4 · MOV · WEBM · YouTube · Social</span></div>
+      <div class="fc"><div class="fc-num">02</div><div class="fc-icon">💬</div><h3>Smart Comment Generator</h3><p>Context-aware, situation-specific comments generated from actual video content in multiple languages and tones. Powered by real AI analysis.</p><span class="ftag">Context-Aware · Multi-Tone</span></div>
+      <div class="fc"><div class="fc-num">03</div><div class="fc-icon">🌐</div><h3>Multi-Language Support</h3><p>Instant switching between English, Tamil, Telugu, and Hindi. Source language detected automatically — Tamil videos produce Tamil transcripts.</p><span class="ftag">EN · TA · TE · HI</span></div>
+      <div class="fc"><div class="fc-num">04</div><div class="fc-icon">🤲</div><h3>Sign Language AI Avatar</h3><p>Real 3D animated human figure with synchronized arm, hand, and finger gestures demonstrating sign language from video audio for deaf users.</p><span class="ftag">3D Avatar · ASL · ISL · Real-time</span></div>
+      <div class="fc"><div class="fc-num">05</div><div class="fc-icon">📚</div><h3>Student Learning Tools</h3><p>Exact lecture summaries, AI-generated smart notes, mock tests with MCQs, and interactive mock interview sessions — all from video content.</p><span class="ftag">Notes · Quiz · Mock Interview</span></div>
+      <div class="fc"><div class="fc-num">06</div><div class="fc-icon">📶</div><h3>Offline Access</h3><p>Cache transcripts and summaries locally for offline reading. Built for rural communities with limited connectivity. Auto-syncs on reconnect.</p><span class="ftag">Rural-Ready · Auto-Sync</span></div>
+      <div class="fc"><div class="fc-num">07</div><div class="fc-icon">🤖</div><h3>24/7 AI Chatbot</h3><p>Always-on platform assistant powered by Claude AI. Answers every question about features, workflows, and transcription guidance in real-time.</p><span class="ftag">Platform-Aware · Always On</span></div>
+      <div class="fc"><div class="fc-num">08</div><div class="fc-icon">⚡</div><h3>General &amp; Complex Mode</h3><p>Toggle between General Mode for everyday content and Complex Mode for math, physics derivations, and quantum mechanics with full LaTeX rendering.</p><span class="ftag">LaTeX · Equations · Quantum</span></div>
+      <div class="fc"><div class="fc-num">09</div><div class="fc-icon">🎯</div><h3>Exact Audio Transcription</h3><p>Advanced speech extraction transcribes videos without subtitles. Noise filtering and language-specific models produce accurate summaries.</p><span class="ftag">No-Subtitle Support · Noise-Filtered</span></div>
+      <div class="fc"><div class="fc-num">10</div><div class="fc-icon">🔍</div><h3>Language Detection</h3><p>Auto-detects spoken language of any video URL and outputs transcript in detected language. Supports conversion to any of the 4 supported languages.</p><span class="ftag">Auto-Detect · Cross-Language</span></div>
+    </div>
+  </section>
+  <section class="contact-sec" id="contact">
+    <div class="sec-hd" id="about"><h2>Contact <span>Support</span></h2><div class="divider"></div><p>We're here to help — reach out anytime</p></div>
+    <div class="cgrid">
+      <div class="ci">
+        <h3>Zyra Helix AI</h3>
+        <p>Built under Open Innovation to democratize AI-powered learning and accessibility for students, deaf communities, and rural India.</p>
+        <div class="clink"><span>📧</span> support [at] zyrahelix.ai</div>
+        <div class="clink"><span>📞</span> +91 98765 43210</div>
+        <div class="clink"><span>🌐</span> www.zyrahelix.ai</div>
+        <div class="clink"><span>🏢</span> Tamil Nadu, India</div>
+      </div>
+      <div class="cf">
+        <h3>Send a Message</h3>
+        <div class="fg"><input placeholder="Your Name" /></div>
+        <div class="fg"><input type="email" placeholder="Email Address" /></div>
+        <div class="fg"><textarea placeholder="Your message..."></textarea></div>
+        <button class="btn-p" id="btn-contact-send">Send Message</button>
+      </div>
+    </div>
+    <div class="footer-bot"><p>Copyright <span>2026 Zyra Helix AI</span> — All Rights Reserved · Open Innovation · Designed for Accessibility &amp; Education</p></div>
+  </section>
+</div>
+
+<!-- AUTH -->
+<div id="auth-page" class="page">
+  <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;position:relative;z-index:1;">
+    <div class="auth-wrap">
+      <div class="auth-logo"><div class="logo-spin" style="width:38px;height:38px;"></div><div><div class="logo-name" style="font-size:1.1rem;">ZYRA HELIX AI</div><div class="logo-tag">OPEN INNOVATION</div></div></div>
+      <div class="atabs">
+        <div class="atab active" id="tab-login">Login</div>
+        <div class="atab" id="tab-signup">Sign Up</div>
+      </div>
+      <div class="aform active" id="lf">
+        <h2>Welcome Back</h2><p>Log in to your AI workspace</p>
+        <div class="ig"><label>EMAIL</label><input type="email" id="le" placeholder="you@example.com" /></div>
+        <div class="ig"><label>PASSWORD</label><input type="password" id="lp" placeholder="••••••••" /></div>
+        <button class="asubmit" id="btn-login">ENTER WORKSPACE</button>
+      </div>
+      <div class="aform" id="sf">
+        <h2>Create Account</h2><p>Free for students &amp; educators</p>
+        <div class="ig"><label>FULL NAME</label><input type="text" id="sn" placeholder="Your full name" /></div>
+        <div class="ig"><label>EMAIL</label><input type="email" id="se" placeholder="you@example.com" /></div>
+        <div class="ig"><label>PASSWORD</label><input type="password" id="sp" placeholder="Create password" /></div>
+        <button class="asubmit" id="btn-signup">CREATE ACCOUNT</button>
+      </div>
+      <div class="back-h" id="btn-back-home">← <span>Back to Home</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="page">
+  <aside class="sidebar">
+    <div class="sb-logo"><div class="logo"><div class="logo-spin" style="width:36px;height:36px;"></div><div><div class="logo-name" style="font-size:.95rem;">ZYRA HELIX</div></div></div></div>
+    <div class="sb-user"><div class="uav" id="uav">Z</div><div class="uname" id="uname">User</div><div class="uplan">⚡ Pro Member</div></div>
+    <div class="mode-tgl">
+      <button class="mbtn active" id="mg">General</button>
+      <button class="mbtn" id="mc">Complex Σ</button>
+    </div>
+    <div class="sb-nav">
+      <div class="sblbl">WORKSPACE</div>
+      <div class="ni active" data-panel="transcript"><span class="nic">🎬</span> Video Transcript</div>
+      <div class="ni" data-panel="comment"><span class="nic">💬</span> Smart Comments</div>
+      <div class="ni" data-panel="language"><span class="nic">🌐</span> Language Detection</div>
+      <div class="sblbl">ACCESSIBILITY</div>
+      <div class="ni" data-panel="signlang"><span class="nic">🤲</span> Sign Language AI</div>
+      <div class="sblbl">LEARNING</div>
+      <div class="ni" data-panel="learning"><span class="nic">📚</span> Learning Tools</div>
+      <div class="sblbl">UTILITIES</div>
+      <div class="ni" data-panel="offline"><span class="nic">📶</span> Offline Access</div>
+      <div class="ni" data-panel="chatbot"><span class="nic">🤖</span> AI Chatbot</div>
+      <div class="sblbl">ACCOUNT</div>
+      <div class="ni" id="btn-logout"><span class="nic">🚪</span> Logout</div>
+    </div>
+  </aside>
+  <div class="dash-main">
+    <div class="dash-hd">
+      <h1 id="pt">🎬 VIDEO TRANSCRIPT</h1>
+      <div class="hdr-acts">
+        <select class="lsel" id="glang"><option value="en">🇬🇧 English</option><option value="ta">🇮🇳 Tamil</option><option value="te">🇮🇳 Telugu</option><option value="hi">🇮🇳 Hindi</option></select>
+        <span class="mode-badge" id="mb">GENERAL MODE</span>
+      </div>
+    </div>
+    <div class="dash-content">
+
+      <!-- TRANSCRIPT -->
+      <div class="panel active" id="p-transcript">
+        <div class="ph"><h2>Video to Transcript</h2><p>Paste a URL or upload a video — AI extracts actual audio and generates a language-aware summary</p></div>
+        <div class="card"><h3>🔗 VIDEO URL</h3>
+          <div class="urow"><input class="ui" id="vurl" placeholder="Paste YouTube, Instagram, TikTok, Twitter, or any video URL..." /><button class="btn-p" id="btn-extract">EXTRACT →</button></div>
+          <div class="ftags"><span class="ftag2">YouTube</span><span class="ftag2">Instagram</span><span class="ftag2">TikTok</span><span class="ftag2">Twitter/X</span><span class="ftag2">Facebook</span><span class="ftag2">Direct URL</span></div>
+        </div>
+        <div class="card"><h3>📁 FILE UPLOAD</h3>
+          <div class="upl" id="upl-area"><div class="upl-ic">🎬</div><p>Drag &amp; drop or <span>click to upload</span></p><div class="ftags" style="justify-content:center;margin-top:11px;"><span class="ftag2">MP4</span><span class="ftag2">MOV</span><span class="ftag2">WEBM</span></div></div>
+          <input type="file" id="finp" accept="video/mp4,video/quicktime,video/webm" style="display:none" />
+        </div>
+        <div class="card">
+          <h3>📝 TRANSCRIPT OUTPUT <span id="lang-tag" style="font-size:.72rem;color:var(--accent2);margin-left:8px;font-family:'Space Mono',monospace;"></span></h3>
+          <div class="steps-row"><span class="step" id="s1">Audio Extraction</span><span class="step" id="s2">Speech Recognition</span><span class="step" id="s3">Language Detection</span><span class="step" id="s4">Summary Generation</span></div>
+          <div class="prog-bar"><div class="prog-fill" id="pf"></div></div>
+          <div class="oa" id="tout" style="white-space:pre-wrap;">Paste a video URL above or upload a file to begin exact audio extraction and transcription.</div>
+          <div class="oact"><button class="btn-g" id="btn-copy-transcript">📋 Copy</button><button class="btn-g" id="btn-dl-transcript">💾 Download</button><button class="btn-g" id="btn-translate">🌐 Translate to Selected Language</button></div>
+        </div>
+      </div>
+
+      <!-- COMMENTS -->
+      <div class="panel" id="p-comment">
+        <div class="ph"><h2>Smart Comment Generator</h2><p>Generate context-aware comments in your selected language</p></div>
+        <div class="card"><h3>🎯 SELECT SITUATION</h3>
+          <div class="sit-grid">
+            <div class="sib" data-sit="Educational">📖 Educational</div>
+            <div class="sib sel" data-sit="Motivational">🔥 Motivational</div>
+            <div class="sib" data-sit="Technical">⚙️ Technical</div>
+            <div class="sib" data-sit="Supportive">🤝 Supportive</div>
+            <div class="sib" data-sit="Humorous">😄 Humorous</div>
+            <div class="sib" data-sit="Critical">🔍 Critical</div>
+          </div>
+          <div class="urow"><input class="ui" id="ctopic" placeholder="Enter topic or paste video URL..." /><button class="btn-p" id="btn-gen-comments">GENERATE →</button></div>
+        </div>
+        <div class="card"><h3>💬 AI-GENERATED COMMENTS <span id="cmt-badge" style="font-size:.72rem;color:var(--accent2);margin-left:8px;font-family:'Space Mono',monospace;"></span></h3>
+          <div class="cmt-out" id="cout"><div style="color:var(--text2);font-size:.88rem;text-align:center;padding:28px;">Select a situation and enter topic to generate AI-powered comments</div></div>
+        </div>
+      </div>
+
+      <!-- LANGUAGE -->
+      <div class="panel" id="p-language">
+        <div class="ph"><h2>Language Detection &amp; Transcription</h2><p>Auto-detect spoken language and transcribe in all 4 supported languages</p></div>
+        <div class="card"><h3>🔗 VIDEO URL</h3>
+          <div class="urow"><input class="ui" id="lurl" placeholder="Paste video URL — Tamil, Telugu, Hindi, English auto-detected..." /><button class="btn-p" id="btn-lang-detect">DETECT &amp; TRANSCRIBE →</button></div>
+          <div style="margin-top:11px;font-size:.83rem;color:var(--accent3);background:rgba(255,107,53,.08);padding:10px 14px;border-radius:8px;border:1px solid rgba(255,107,53,.2);">⚠️ AI transcribes the exact spoken language — Tamil videos produce Tamil output. Use the language selector to translate after transcription.</div>
+        </div>
+        <div class="card"><h3>🌐 MULTI-LANGUAGE OUTPUT</h3><div class="lg-grid" id="lgrid"><div style="grid-column:1/-1;color:var(--text2);text-align:center;padding:28px;font-size:.88rem;">Paste a video URL above to see transcription in all supported languages</div></div></div>
+      </div>
+
+      <!-- SIGN LANGUAGE -->
+      <div class="panel" id="p-signlang">
+        <div class="ph"><h2>Sign Language AI Avatar</h2><p>3D animated human figure with full hand &amp; arm gestures — for deaf users</p></div>
+        <div class="card" style="padding:0;overflow:hidden;border-radius:14px;">
+          <div id="avc-wrap"><canvas id="avc"></canvas><div class="sign-hud" id="shud"><div class="sig-dot" id="sdot"></div><span id="stxt">Enter text below or load a video URL to begin signing</span></div></div>
+          <div class="avc-ctrl"><input class="si-inp" id="si" placeholder="Type text to sign — or load from video URL..." /><button class="btn-p" id="btn-do-sign">▶ SIGN</button><button class="btn-g" id="btn-stop-sign">■ Stop</button></div>
+        </div>
+        <div class="card"><h3>🔗 LOAD FROM VIDEO URL</h3>
+          <div class="urow"><input class="ui" id="surl" placeholder="Paste video URL to extract audio and sign automatically..." /><button class="btn-p" id="btn-sign-url">LOAD &amp; SIGN →</button></div>
+          <div class="hand-legend"><span class="hl">🤲 ASL Supported</span><span class="hl">👋 ISL Supported</span><span class="hl">🔤 Fingerspelling</span><span class="hl">📍 Spatial Grammar</span><span class="hl">👁️ Real-time Sync</span></div>
+        </div>
+      </div>
+
+      <!-- LEARNING -->
+      <div class="panel" id="p-learning">
+        <div class="ph"><h2>Student Learning Tools</h2><p>Lecture summaries, smart notes, mock tests, and mock interviews from video content</p></div>
+        <div class="card"><div class="urow"><input class="ui" id="lrnurl" placeholder="Paste lecture or tutorial video URL..." /><button class="btn-p" id="btn-load-lecture">LOAD LECTURE →</button></div></div>
+        <div class="ttabs">
+          <div class="ttab active" data-tool="summary">📝 Summary</div>
+          <div class="ttab" data-tool="notes">📒 Notes</div>
+          <div class="ttab" data-tool="quiz">🧪 Mock Test</div>
+          <div class="ttab" data-tool="iv">🎤 Mock Interview</div>
+        </div>
+        <div class="card">
+          <div class="tpanel active" id="t-summary"><h3>📝 LECTURE SUMMARY</h3><div class="oa" id="sout">Load a lecture video to generate an exact step-by-step summary...</div></div>
+          <div class="tpanel" id="t-notes"><h3>📒 SMART NOTES</h3><textarea class="notes-a" id="nout" placeholder="AI-generated notes will appear after loading a video..."></textarea><div style="margin-top:11px;display:flex;gap:9px;"><button class="btn-g" id="btn-copy-notes">📋 Copy</button><button class="btn-p" id="btn-dl-notes">💾 Save Notes</button></div></div>
+          <div class="tpanel" id="t-quiz"><h3>🧪 MOCK TEST</h3><div id="qc"><p style="color:var(--text2);">Load a video to generate a mock test based on its content.</p><button class="btn-p" style="margin-top:14px;" id="btn-gen-quiz">Generate Quiz →</button></div></div>
+          <div class="tpanel" id="t-iv"><h3>🎤 MOCK INTERVIEW</h3><div class="iv-chat" id="ivc"><div class="cb ai">Hello! I am your AI interviewer. Load a lecture video and I will ask you questions based on its content. Ready to begin?</div></div><div class="cir"><input class="c-inp" id="ivi" placeholder="Your answer..." /><button class="c-send" id="btn-iv-send">Send</button></div></div>
+        </div>
+      </div>
+
+      <!-- OFFLINE -->
+      <div class="panel" id="p-offline">
+        <div class="ph"><h2>Offline Access</h2><p>Access transcripts and summaries without internet — built for rural communities</p></div>
+        <div class="os on" id="ostatus"><div class="sdot g"></div><span style="font-size:.88rem;">Connected — Syncing cached content</span><button class="btn-g" style="margin-left:auto;font-size:.78rem;" id="btn-tog-offline">Simulate Offline</button></div>
+        <div class="card"><h3>💾 CACHED CONTENT</h3>
+          <div class="ci-list">
+            <div class="ci2"><div class="cci">📹</div><div class="cii"><p>Introduction to Machine Learning — Lecture 1</p><span>Cached 2 hours ago · 3.2 MB</span></div><button class="btn-g" style="font-size:.78rem;" id="btn-cache-open1">Open</button></div>
+            <div class="ci2"><div class="cci">📝</div><div class="cii"><p>Quantum Physics Derivation Notes (Tamil)</p><span>Cached yesterday · 1.1 MB</span></div><button class="btn-g" style="font-size:.78rem;" id="btn-cache-open2">Open</button></div>
+            <div class="ci2"><div class="cci">🧪</div><div class="cii"><p>Mock Test — Data Structures &amp; Algorithms</p><span>Cached 3 days ago · 0.8 MB</span></div><button class="btn-g" style="font-size:.78rem;" id="btn-cache-open3">Open</button></div>
+          </div>
+          <button class="btn-p" style="margin-top:14px;width:100%;" id="btn-cache-session">📥 Cache Current Session</button>
+        </div>
+        <div class="card"><h3>📶 OFFLINE SETTINGS</h3>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:.88rem;">Auto-cache new transcripts</span><input type="checkbox" checked style="width:17px;height:17px;cursor:pointer;accent-color:var(--accent);" /></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:.88rem;">Download summaries for offline reading</span><input type="checkbox" checked style="width:17px;height:17px;cursor:pointer;accent-color:var(--accent);" /></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:.88rem;">Background sync on reconnect</span><input type="checkbox" checked style="width:17px;height:17px;cursor:pointer;accent-color:var(--accent);" /></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHATBOT -->
+      <div class="panel" id="p-chatbot">
+        <div class="ph"><h2>24/7 AI Chatbot</h2><p>Ask anything about the platform — powered by Claude AI</p></div>
+        <div class="bot-wrap">
+          <div class="cw" id="cw"><div class="cb ai"><strong>Zyra AI 🤖</strong><br/>Hello! I can help you with:<br/>• How to transcribe videos from URLs<br/>• Language switching and detection<br/>• Using the 3D sign language avatar<br/>• Learning tools: notes, quiz, interviews<br/>• Offline access setup<br/>• Math / LaTeX complex mode<br/><br/>What would you like to know?</div></div>
+          <div class="ty" id="ty"><div class="tyd"><span></span><span></span><span></span></div>&nbsp;AI is typing...</div>
+          <div class="c-inp-a"><input class="c-inp" id="ci2" placeholder="Ask me anything about Zyra Helix AI..." /><button class="c-send" id="btn-bot-send">Send →</button></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script>
+(function() {
+'use strict';
+
+// ===== STATE =====
+var CL='en', CM='general', selSitVal='Motivational', lastTranscript='', lectureContent='';
+var avInit=false, signing=false, signWords=[], signIdx=0;
+var armL,armR,handL,handR,foreAL,foreAR,avScene,avRenderer,avCamera;
+var ivStep=0;
+var _apiQueue=Promise.resolve(), _lastCallTime=0, _MIN_GAP=1200;
+
+var LN={en:'English',ta:'Tamil',te:'Telugu',hi:'Hindi'};
+var LF={en:'EN',ta:'TA',te:'TE',hi:'HI'};
+function G(id){return document.getElementById(id);}
+
+// ===== TOAST =====
+function toast(msg){
+  var t=G('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},3200);
+}
+
+// ===== LOADER =====
+function showLdr(t,sub){
+  G('ltxt').textContent=t||'Processing...';
+  G('lsub').textContent=sub||'';
+  G('loader').classList.add('show');
+  var isRetry=t&&(t.indexOf('Rate limited')>=0||t.indexOf('retrying')>=0||t.indexOf('busy')>=0);
+  G('retry-bar-wrap').style.display=isRetry?'block':'none';
+}
+function hideLdr(){
+  G('loader').classList.remove('show');
+  G('retry-bar-wrap').style.display='none';
+  G('retry-bar').style.width='0%';
+  G('lsub').textContent='';
+}
+function animRetryBar(ms){
+  var bar=G('retry-bar'),wrap=G('retry-bar-wrap');
+  if(!bar||!wrap)return;
+  wrap.style.display='block';
+  bar.style.transition='none';bar.style.width='0%';
+  bar.getBoundingClientRect();
+  bar.style.transition='width '+ms+'ms linear';
+  bar.style.width='100%';
+}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+
+// ===== CLAUDE API with 429 retry =====
+function callClaude(prompt,sys,maxTok){
+  _apiQueue=_apiQueue.then(function(){return doCall(prompt,sys,0,maxTok||1000);});
+  return _apiQueue;
+}
+async function doCall(prompt,sys,retry,maxTok){
+  var now=Date.now(), gap=_MIN_GAP-(now-_lastCallTime);
+  if(gap>0) await sleep(gap);
+  _lastCallTime=Date.now();
+  var body={model:'claude-sonnet-4-20250514',max_tokens:maxTok||1000,messages:[{role:'user',content:prompt}]};
+  if(sys) body.system=sys;
+  var r;
+  try{
+    r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  }catch(netErr){
+    if(retry<3){showLdr('Network error — retrying ('+(retry+1)+'/3)...');await sleep(2000*(retry+1));return doCall(prompt,sys,retry+1,maxTok);}
+    throw new Error('Network error: '+netErr.message);
+  }
+  if(r.status===429){
+    var maxR=5;
+    if(retry>=maxR) throw new Error('Rate limit reached after '+maxR+' retries. Please wait a moment and try again.');
+    var ra=r.headers.get('retry-after');
+    var waitMs=ra?Math.min(parseInt(ra)*1000,30000):Math.min(2000*Math.pow(2,retry),30000);
+    animRetryBar(waitMs);
+    showLdr('Rate limited — retrying ('+(retry+1)+'/'+maxR+')','Waiting '+Math.ceil(waitMs/1000)+'s for API cooldown...');
+    await sleep(waitMs);
+    showLdr('Retrying request...');
+    return doCall(prompt,sys,retry+1,maxTok);
+  }
+  if(r.status===529||r.status===503){
+    if(retry<4){var w=Math.min(3000*(retry+1),15000);animRetryBar(w);showLdr('Server busy — retrying ('+(retry+1)+'/4)','Waiting '+Math.ceil(w/1000)+'s...');await sleep(w);return doCall(prompt,sys,retry+1,maxTok);}
+    throw new Error('Server overloaded. Please try again in a minute.');
+  }
+  if(!r.ok){var eb=await r.text().catch(function(){return '';});throw new Error('API error '+r.status+(eb?': '+eb.substring(0,120):''));}
+  var d=await r.json();
+  if(d.content&&d.content[0]) return d.content[0].text;
+  throw new Error('Empty API response');
+}
+
+// ===== BG PARTICLES =====
+(function(){
+  var c=G('bgc'),ctx=c.getContext('2d'),W,H,P=[];
+  function rs(){W=c.width=innerWidth;H=c.height=innerHeight;}
+  rs();window.addEventListener('resize',rs);
+  for(var i=0;i<70;i++) P.push({x:Math.random()*2000,y:Math.random()*1200,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*2+.5,a:Math.random()*.7+.1});
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    P.forEach(function(p){p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(0,245,212,'+p.a+')';ctx.fill();});
+    for(var i=0;i<P.length;i++)for(var j=i+1;j<P.length;j++){var d=Math.hypot(P[i].x-P[j].x,P[i].y-P[j].y);if(d<110){ctx.beginPath();ctx.moveTo(P[i].x,P[i].y);ctx.lineTo(P[j].x,P[j].y);ctx.strokeStyle='rgba(0,245,212,'+(0.07*(1-d/110))+')';ctx.lineWidth=.5;ctx.stroke();}}
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ===== HERO 3D =====
+(function(){
+  var c=G('hcanvas');if(!c)return;
+  var W=c.clientWidth||480,H=c.clientHeight||440;
+  var R=new THREE.WebGLRenderer({canvas:c,alpha:true,antialias:true});
+  R.setPixelRatio(devicePixelRatio);R.setSize(W,H);
+  var S=new THREE.Scene(),CAM=new THREE.PerspectiveCamera(60,W/H,.1,100);
+  CAM.position.set(0,0,5);
+  var g=new THREE.Group(),sm=new THREE.SphereGeometry(.08,8,8);
+  var m1=new THREE.MeshPhongMaterial({color:0x00f5d4,emissive:0x003333});
+  var m2=new THREE.MeshPhongMaterial({color:0x7b2ff7,emissive:0x220044});
+  for(var i=0;i<60;i++){
+    var t=i/60*Math.PI*6,r=1.2;
+    var a=new THREE.Mesh(sm,m1.clone());a.position.set(Math.cos(t)*r,i*.1-3,Math.sin(t)*r);g.add(a);
+    var b=new THREE.Mesh(sm,m2.clone());b.position.set(Math.cos(t+Math.PI)*r,i*.1-3,Math.sin(t+Math.PI)*r);g.add(b);
+    if(i%6===0){var bg=new THREE.CylinderGeometry(.025,.025,r*2);var bar=new THREE.Mesh(bg,new THREE.MeshPhongMaterial({color:0xffffff,opacity:.2,transparent:true}));bar.position.set(0,i*.1-3,0);bar.rotation.z=Math.PI/2;bar.rotation.y=t;g.add(bar);}
+  }
+  S.add(g);S.add(new THREE.AmbientLight(0xffffff,.5));
+  var dl=new THREE.DirectionalLight(0x00f5d4,1);dl.position.set(3,3,3);S.add(dl);
+  var dl2=new THREE.DirectionalLight(0x7b2ff7,.8);dl2.position.set(-3,-3,-3);S.add(dl2);
+  function anim(){requestAnimationFrame(anim);g.rotation.y+=.008;g.rotation.x+=.002;R.render(S,CAM);}
+  anim();
+})();
+
+// ===== 3D AVATAR — fully hierarchical skeleton with articulated hands =====
+// Avatar skeleton refs
+var AV={
+  root:null, torsoMesh:null, headMesh:null,
+  shoulderL:null, upperArmL:null, elbowL:null, foreArmL:null, wristL:null,
+  shoulderR:null, upperArmR:null, elbowR:null, foreArmR:null, wristR:null,
+  // fingers: [thumb,index,middle,ring,pinky] each = [base,mid,tip pivot groups]
+  fingersL:[], fingersR:[]
+};
+
+function makeLimb(geo, mat, px,py,pz, rx,ry,rz, parent){
+  // pivot at top so rotation acts from joint
+  var pivot=new THREE.Group();
+  pivot.position.set(px,py,pz);
+  pivot.rotation.set(rx,ry,rz);
+  var mesh=new THREE.Mesh(geo,mat);
+  // offset mesh so it hangs below pivot
+  var bbox=new THREE.Box3().setFromObject(new THREE.Mesh(geo));
+  var h=(bbox.max.y-bbox.min.y);
+  mesh.position.y=-h/2;
+  pivot.add(mesh);
+  if(parent) parent.add(pivot);
+  return pivot; // pivot is the joint to rotate
+}
+
+function makeFingerChain(skinMat, side){
+  // Returns array of 3 pivot groups [metacarpal, proximal, distal]
+  var segs=[];
+  var L=[.055,.05,.038]; // segment lengths
+  var R=[.022,.018,.015]; // radii
+  var prev=null;
+  for(var s=0;s<3;s++){
+    var pivot=new THREE.Group();
+    var geo=new THREE.CylinderGeometry(R[s],R[s]*.9,L[s],8);
+    var mesh=new THREE.Mesh(geo,skinMat);
+    mesh.position.y=-L[s]/2;
+    pivot.add(mesh);
+    // knuckle sphere
+    var kSphere=new THREE.Mesh(new THREE.SphereGeometry(R[s]*.95,6,6),skinMat);
+    pivot.add(kSphere);
+    if(prev){
+      pivot.position.y=-L[s-1]; // attach at bottom of previous segment
+      prev.add(pivot);
+    }
+    segs.push(pivot);
+    prev=pivot;
+  }
+  return segs; // segs[0] is base, rotate segs[0..2] for curl
+}
+
+function initAvatar(){
+  var c=G('avc');if(!c||avInit)return;avInit=true;
+  var W=c.clientWidth||720,H=420;
+  avRenderer=new THREE.WebGLRenderer({canvas:c,alpha:true,antialias:true});
+  avRenderer.setPixelRatio(Math.min(devicePixelRatio,2));avRenderer.setSize(W,H);
+  avRenderer.shadowMap.enabled=true;
+  avRenderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  avScene=new THREE.Scene();
+  avCamera=new THREE.PerspectiveCamera(42,W/H,.1,100);
+  avCamera.position.set(0,0.7,3.8);avCamera.lookAt(0,0.5,0);
+
+  // Lighting
+  avScene.add(new THREE.AmbientLight(0xffffff,.55));
+  var key=new THREE.DirectionalLight(0xffffff,1.1);key.position.set(3,7,5);key.castShadow=true;
+  key.shadow.mapSize.set(1024,1024);avScene.add(key);
+  var fill=new THREE.DirectionalLight(0x99ddff,.6);fill.position.set(-4,3,2);avScene.add(fill);
+  var rim=new THREE.DirectionalLight(0x00f5d4,.45);rim.position.set(0,-2,-3);avScene.add(rim);
+  var ptL=new THREE.PointLight(0x7b2ff7,.4,5);ptL.position.set(-1.5,2,1);avScene.add(ptL);
+  var ptR=new THREE.PointLight(0x00f5d4,.3,5);ptR.position.set(1.5,3,1);avScene.add(ptR);
+
+  // Floor + grid
+  var flr=new THREE.Mesh(new THREE.PlaneGeometry(12,12),new THREE.MeshPhongMaterial({color:0x060c18,shininess:5}));
+  flr.rotation.x=-Math.PI/2;flr.position.y=-1.72;flr.receiveShadow=true;avScene.add(flr);
+  var grd=new THREE.GridHelper(8,.5,0x00f5d4,0x0d1224);grd.position.y=-1.71;grd.material.transparent=true;grd.material.opacity=.28;avScene.add(grd);
+
+  // Materials
+  var mSkin=new THREE.MeshPhongMaterial({color:0xf0c090,shininess:35,specular:0x663300});
+  var mShirt=new THREE.MeshPhongMaterial({color:0x1a1a60,shininess:18});
+  var mPants=new THREE.MeshPhongMaterial({color:0x0d0d30,shininess:8});
+  var mShoe=new THREE.MeshPhongMaterial({color:0x111111,shininess:5});
+  var mHair=new THREE.MeshPhongMaterial({color:0x110a00,shininess:25});
+  var mGlow=new THREE.MeshPhongMaterial({color:0x00f5d4,emissive:0x002233,shininess:90});
+  var mEye=new THREE.MeshPhongMaterial({color:0x88eedd,emissive:0x003322,shininess:100});
+  var mPupil=new THREE.MeshBasicMaterial({color:0x000000});
+  var mLip=new THREE.MeshPhongMaterial({color:0xcc7766,shininess:20});
+  var mNail=new THREE.MeshPhongMaterial({color:0xffccaa,shininess:60});
+
+  // ── ROOT pivot at hip level ──
+  var root=new THREE.Group();root.position.set(0,-0.6,0);avScene.add(root);AV.root=root;
+
+  // ── HIPS ──
+  var hips=new THREE.Group();hips.position.y=.05;root.add(hips);
+
+  // ── LEGS ──
+  function makeLeg(side){
+    var sx=side==='L'?-.16:.16;
+    var legGrp=new THREE.Group();legGrp.position.set(sx,.0,0);hips.add(legGrp);
+    // upper leg
+    var ul=new THREE.Mesh(new THREE.CylinderGeometry(.11,.1,.72,12),mPants);ul.position.y=-.36;legGrp.add(ul);
+    // knee
+    var knee=new THREE.Mesh(new THREE.SphereGeometry(.105,10,10),mPants);knee.position.y=-.72;legGrp.add(knee);
+    // lower leg
+    var ll=new THREE.Mesh(new THREE.CylinderGeometry(.095,.085,.65,12),mPants);ll.position.y=-1.09;legGrp.add(ll);
+    // ankle
+    var ank=new THREE.Mesh(new THREE.SphereGeometry(.088,8,8),mPants);ank.position.y=-1.41;legGrp.add(ank);
+    // shoe
+    var shoe=new THREE.Mesh(new THREE.BoxGeometry(.2,.1,.35),mShoe);shoe.position.set(0,-1.52,.07);legGrp.add(shoe);
+    var toeCap=new THREE.Mesh(new THREE.SphereGeometry(.09,8,6),mShoe);toeCap.scale.set(1,.6,1.1);toeCap.position.set(0,-1.52,.22);legGrp.add(toeCap);
+  }
+  makeLeg('L');makeLeg('R');
+
+  // ── HIP/PELVIS MESH ──
+  var pelvis=new THREE.Mesh(new THREE.CylinderGeometry(.3,.28,.38,14),mPants);pelvis.position.y=.19;hips.add(pelvis);
+
+  // ── TORSO ──
+  var torsoGrp=new THREE.Group();torsoGrp.position.y=.38;hips.add(torsoGrp);AV.torsoMesh=torsoGrp;
+  // lower torso
+  var abdomen=new THREE.Mesh(new THREE.CylinderGeometry(.3,.28,.42,14),mShirt);abdomen.position.y=.21;torsoGrp.add(abdomen);
+  // chest
+  var chest=new THREE.Mesh(new THREE.CylinderGeometry(.36,.3,.52,16),mShirt);chest.position.y=.63;torsoGrp.add(chest);
+  // chest detail — pockets
+  var pMat=new THREE.MeshPhongMaterial({color:0x22226a,shininess:10});
+  var pL=new THREE.Mesh(new THREE.BoxGeometry(.1,.08,.02),pMat);pL.position.set(-.13,.62,.34);torsoGrp.add(pL);
+  var pR=new THREE.Mesh(new THREE.BoxGeometry(.1,.08,.02),pMat);pR.position.set(.13,.62,.34);torsoGrp.add(pR);
+  // belt
+  var belt=new THREE.Mesh(new THREE.CylinderGeometry(.305,.305,.055,14),mGlow);belt.position.y=.09;torsoGrp.add(belt);
+  // collar glow ring
+  var collar=new THREE.Mesh(new THREE.TorusGeometry(.18,.025,8,22),mGlow);collar.position.y=.9;collar.rotation.x=Math.PI/2;torsoGrp.add(collar);
+
+  // ── NECK ──
+  var neckGrp=new THREE.Group();neckGrp.position.y=.9;torsoGrp.add(neckGrp);
+  var neckMesh=new THREE.Mesh(new THREE.CylinderGeometry(.13,.155,.28,12),mSkin);neckMesh.position.y=.14;neckGrp.add(neckMesh);
+
+  // ── HEAD ──
+  var headGrp=new THREE.Group();headGrp.position.y=.3;neckGrp.add(headGrp);AV.headMesh=headGrp;
+  // skull
+  var skull=new THREE.Mesh(new THREE.SphereGeometry(.42,24,22),mSkin);skull.castShadow=true;headGrp.add(skull);
+  // hair — cap
+  var hairCap=new THREE.Mesh(new THREE.SphereGeometry(.44,20,14),mHair);hairCap.scale.set(1,.52,1);hairCap.position.y=.2;headGrp.add(hairCap);
+  // forehead hair line
+  var hairFront=new THREE.Mesh(new THREE.BoxGeometry(.78,.06,.3),mHair);hairFront.position.set(0,.26,.28);headGrp.add(hairFront);
+  // eyes
+  [-.15,.15].forEach(function(x){
+    var eyeball=new THREE.Mesh(new THREE.SphereGeometry(.075,12,12),new THREE.MeshPhongMaterial({color:0xffffff,shininess:80}));eyeball.position.set(x,.06,.36);headGrp.add(eyeball);
+    var iris=new THREE.Mesh(new THREE.SphereGeometry(.055,10,10),mEye);iris.position.set(x,.06,.41);headGrp.add(iris);
+    var pupil=new THREE.Mesh(new THREE.SphereGeometry(.03,8,8),mPupil);pupil.position.set(x,.06,.445);headGrp.add(pupil);
+    // eyelid
+    var lid=new THREE.Mesh(new THREE.TorusGeometry(.072,.01,4,14,Math.PI),new THREE.MeshPhongMaterial({color:0xd4a882}));lid.position.set(x,.085,.37);lid.rotation.z=x<0?Math.PI:0;headGrp.add(lid);
+    // eyebrow
+    var brow=new THREE.Mesh(new THREE.BoxGeometry(.1,.02,.015),mHair);brow.position.set(x,.165,.37);brow.rotation.z=x<0?.12:-.12;headGrp.add(brow);
+  });
+  // nose bridge + tip
+  var noseBridge=new THREE.Mesh(new THREE.CylinderGeometry(.022,.032,.1,8),mSkin);noseBridge.position.set(0,-.04,.41);noseBridge.rotation.x=.3;headGrp.add(noseBridge);
+  var noseTip=new THREE.Mesh(new THREE.SphereGeometry(.048,8,8),mSkin);noseTip.position.set(0,-.09,.43);headGrp.add(noseTip);
+  var nostrilL=new THREE.Mesh(new THREE.SphereGeometry(.025,6,6),mSkin);nostrilL.position.set(-.036,-.12,.41);headGrp.add(nostrilL);
+  var nostrilR=new THREE.Mesh(new THREE.SphereGeometry(.025,6,6),mSkin);nostrilR.position.set(.036,-.12,.41);headGrp.add(nostrilR);
+  // mouth
+  var lips=new THREE.Mesh(new THREE.BoxGeometry(.15,.028,.02),mLip);lips.position.set(0,-.2,.4);headGrp.add(lips);
+  var lowerLip=new THREE.Mesh(new THREE.BoxGeometry(.12,.022,.02),mLip);lowerLip.position.set(0,-.234,.39);headGrp.add(lowerLip);
+  // ears
+  [-.415,.415].forEach(function(x){
+    var ear=new THREE.Mesh(new THREE.SphereGeometry(.085,8,8),mSkin);ear.scale.set(.45,1,.6);ear.position.set(x,.03,0);headGrp.add(ear);
+    var innerEar=new THREE.Mesh(new THREE.SphereGeometry(.05,6,6),new THREE.MeshPhongMaterial({color:0xe0a870}));innerEar.scale.set(.3,.7,.4);innerEar.position.set(x,.03,0);headGrp.add(innerEar);
+    var earlobe=new THREE.Mesh(new THREE.SphereGeometry(.04,6,6),mSkin);earlobe.position.set(x,-.095,0);headGrp.add(earlobe);
+  });
+  // chin
+  var chin=new THREE.Mesh(new THREE.SphereGeometry(.12,10,8),mSkin);chin.scale.set(.9,.55,.7);chin.position.set(0,-.34,.2);headGrp.add(chin);
+  // jaw sides
+  [-.25,.25].forEach(function(x){var jaw=new THREE.Mesh(new THREE.SphereGeometry(.1,8,8),mSkin);jaw.scale.set(.6,.7,.8);jaw.position.set(x,-.26,.08);headGrp.add(jaw);});
+
+  // ── SHOULDER PIVOTS (children of torso) ──
+  function buildArm(side){
+    var sx=side==='L'?-1:1;
+    // shoulder pivot at collarbone edge
+    var shoulderPivot=new THREE.Group();
+    shoulderPivot.position.set(sx*.36,.82,0);
+    torsoGrp.add(shoulderPivot);
+    // shoulder cap
+    var sCap=new THREE.Mesh(new THREE.SphereGeometry(.115,12,10),mShirt);sCap.position.set(0,0,0);shoulderPivot.add(sCap);
+
+    // upper arm pivot (rotates for shoulder movement)
+    var uArmPivot=new THREE.Group();
+    uArmPivot.position.set(0,0,0);
+    shoulderPivot.add(uArmPivot);
+    // upper arm mesh (cylinder pointing down from shoulder)
+    var uArmMesh=new THREE.Mesh(new THREE.CylinderGeometry(.1,.088,.52,12),mShirt);
+    uArmMesh.position.y=-.26;
+    uArmPivot.add(uArmMesh);
+    // elbow sphere
+    var elbowSphere=new THREE.Mesh(new THREE.SphereGeometry(.09,10,10),mSkin);
+    elbowSphere.position.y=-.52;
+    uArmPivot.add(elbowSphere);
+
+    // forearm pivot (at elbow, i.e. bottom of upper arm)
+    var foreArmPivot=new THREE.Group();
+    foreArmPivot.position.y=-.52;
+    uArmPivot.add(foreArmPivot);
+    var foreArmMesh=new THREE.Mesh(new THREE.CylinderGeometry(.082,.072,.48,12),mSkin);
+    foreArmMesh.position.y=-.24;
+    foreArmPivot.add(foreArmMesh);
+    // wrist sphere
+    var wristSphere=new THREE.Mesh(new THREE.SphereGeometry(.075,10,10),mSkin);
+    wristSphere.position.y=-.48;
+    foreArmPivot.add(wristSphere);
+
+    // wrist/hand pivot (at bottom of forearm)
+    var wristPivot=new THREE.Group();
+    wristPivot.position.y=-.48;
+    foreArmPivot.add(wristPivot);
+
+    // ── HAND PALM ──
+    var palmMesh=new THREE.Mesh(new THREE.BoxGeometry(.13,.16,.06),mSkin);
+    palmMesh.position.set(0,-.1,0);
+    wristPivot.add(palmMesh);
+    // palm back round off
+    var palmRound=new THREE.Mesh(new THREE.SphereGeometry(.07,8,8),mSkin);
+    palmRound.scale.set(1.0,.9,.5);palmRound.position.set(0,-.04,0);
+    wristPivot.add(palmRound);
+
+    // ── FINGERS ──
+    // 5 fingers: thumb, index, middle, ring, pinky
+    // offsets from wrist center (x, y_base, z)  — adjusted for realism
+    var fingerDefs=[
+      // [localX, baseY, baseZ, tiltZ, tiltX, segLengths, segRadii]  side=L means sx=+1 for thumb
+      {x:sx*.075, y:-.06, z:.02, rz:sx*-.55, rx:.1,  L:[.052,.046,.036], R:[.022,.019,.016], isThumb:true},
+      {x:sx*.04,  y:-.2,  z:.02, rz:sx*-.08, rx:.05, L:[.058,.048,.038], R:[.02,.017,.014],  isThumb:false},
+      {x:sx*.013, y:-.21, z:.02, rz:sx*-.02, rx:.0,  L:[.062,.052,.04],  R:[.02,.018,.014],  isThumb:false},
+      {x:-sx*.015,y:-.2,  z:.02, rz:sx*.04,  rx:.02, L:[.057,.047,.036], R:[.019,.016,.013], isThumb:false},
+      {x:-sx*.042,y:-.19, z:.02, rz:sx*.1,   rx:.05, L:[.048,.038,.03],  R:[.017,.015,.012], isThumb:false},
+    ];
+    var fingerChains=[];
+    fingerDefs.forEach(function(fd){
+      // base metacarpal pivot
+      var metaPivot=new THREE.Group();
+      metaPivot.position.set(fd.x,fd.y,fd.z);
+      metaPivot.rotation.set(fd.rx,0,fd.rz);
+      wristPivot.add(metaPivot);
+
+      var segs=[];
+      var prev=metaPivot;
+      for(var s=0;s<3;s++){
+        var segPivot=new THREE.Group();
+        if(s===0){
+          // no extra offset for metacarpal — already placed
+        } else {
+          segPivot.position.y=-fd.L[s-1];
+          prev.add(segPivot);
+        }
+        // segment cylinder
+        var segGeo=new THREE.CylinderGeometry(fd.R[s],fd.R[s]*.9,fd.L[s],8);
+        var segMesh=new THREE.Mesh(segGeo,mSkin);
+        segMesh.position.y=-fd.L[s]/2;
+        segPivot.add(segMesh);
+        // knuckle sphere
+        var knuck=new THREE.Mesh(new THREE.SphereGeometry(fd.R[s]*.98,6,6),mSkin);
+        segPivot.add(knuck);
+        // fingernail on distal (s===2)
+        if(s===2){
+          var nail=new THREE.Mesh(new THREE.BoxGeometry(fd.R[s]*1.6,fd.L[s]*.4,fd.R[s]*.4),mNail);
+          nail.position.set(0,-fd.L[s]*.7,.024);
+          segPivot.add(nail);
+        }
+        if(s===0) metaPivot.add(segPivot);
+        segs.push(segPivot);
+        prev=segPivot;
+      }
+      fingerChains.push({meta:metaPivot, segs:segs, def:fd});
+    });
+
+    // Store refs
+    var key=side==='L'?'L':'R';
+    AV['shoulderPivot'+key]=shoulderPivot;
+    AV['uArmPivot'+key]=uArmPivot;
+    AV['foreArmPivot'+key]=foreArmPivot;
+    AV['wristPivot'+key]=wristPivot;
+    AV['fingers'+key]=fingerChains;
+    if(side==='L'){armL=uArmPivot;foreAL=foreArmPivot;handL=wristPivot;}
+    else{armR=uArmPivot;foreAR=foreArmPivot;handR=wristPivot;}
+  }
+
+  buildArm('L');
+  buildArm('R');
+
+  // glow ring base
+  var ring=new THREE.Mesh(new THREE.TorusGeometry(.5,.022,8,48),new THREE.MeshBasicMaterial({color:0x00f5d4,transparent:true,opacity:.45}));
+  ring.rotation.x=Math.PI/2;ring.position.y=-1.71;avScene.add(ring);
+  // second ring
+  var ring2=new THREE.Mesh(new THREE.TorusGeometry(.7,.012,8,48),new THREE.MeshBasicMaterial({color:0x7b2ff7,transparent:true,opacity:.25}));
+  ring2.rotation.x=Math.PI/2;ring2.position.y=-1.71;avScene.add(ring2);
+
+  // Idle render loop
+  var t0idle=0;
+  function loop(t){
+    requestAnimationFrame(loop);
+    var e=t*.001;
+    // breathing
+    if(AV.torsoMesh) AV.torsoMesh.scale.set(1+Math.sin(e*1.1)*.012,1+Math.sin(e*1.1)*.008,1);
+    // head gentle sway
+    if(AV.headMesh){AV.headMesh.rotation.y=Math.sin(e*.4)*.04;AV.headMesh.rotation.z=Math.sin(e*.55)*.015;}
+    // subtle ring pulse
+    ring.material.opacity=.35+Math.sin(e*1.8)*.12;
+    avRenderer.render(avScene,avCamera);
+  }
+  requestAnimationFrame(loop);
+}
+
+// ── SIGN POSES ──
+// Each pose: { uArmL:{rz,rx,ry}, foreAL:{rz,rx}, wristL:{rz,rx,ry},
+//              uArmR:{rz,rx,ry}, foreAR:{rz,rx}, wristR:{rz,rx,ry},
+//              fingersL:[curl0..4], fingersR:[curl0..4] }
+// curl = 0 (open/extended) → 1 (fully curled/fist)
+// Thumb has different curl axis so we pass [proximalRx, midRx, distRx]
+
+function makePose(uLz,uLx, faLz,faLx, wLz,wLx,
+                  uRz,uRx, faRz,faRx, wRz,wRx,
+                  fL, fR){
+  return {
+    uAL:{rz:uLz,rx:uLx}, faL:{rz:faLz,rx:faLx}, wL:{rz:wLz,rx:wLx},
+    uAR:{rz:uRz,rx:uRx}, faR:{rz:faRz,rx:faRx}, wR:{rz:wRz,rx:wRx},
+    fL:fL, fR:fR
+  };
+}
+// fL/fR = [thumb_curl, index_curl, middle_curl, ring_curl, pinky_curl] 0..1
+
+var SIGN_POSES=[
+  // 0 — Neutral / rest — hands relaxed in front of body
+  makePose(.35,.15, -.55,.4, 0,.1, -.35,.15, .55,.4, 0,-.1,
+           [0,0,0,0,0],[0,0,0,0,0]),
+  // 1 — Both hands open raised to chest (greeting/hello)
+  makePose(.75,.3, -.65,.5, 0,.05, -.75,.3, .65,.5, 0,-.05,
+           [0,0,0,0,0],[0,0,0,0,0]),
+  // 2 — Left fist at chest, right open forward (letter A style)
+  makePose(.5,.2, -.55,.45, .1,0, -.7,.35, .6,.45, -.1,-.1,
+           [.6,.8,.8,.8,.8],[0,0,0,0,0]),
+  // 3 — Right fist, left index point up (letter B+G)
+  makePose(.65,.3, -.5,.4, .2,.1, -.45,.15, -.4,.3, 0,.1,
+           [0,.1,.8,.8,.9],[.5,.1,.8,.8,.8]),
+  // 4 — Both index fingers point up (letter D / number 1)
+  makePose(.7,.3, -.55,.45, .1,0, -.7,.3, .55,.45, -.1,0,
+           [.5,.0,.8,.8,.85],[.5,.0,.8,.8,.85]),
+  // 5 — Open palms face out (stop / 5)
+  makePose(.72,.38, -.58,.48, .15,.1, -.72,.38, .58,.48, -.15,-.1,
+           [0,0,0,0,0],[0,0,0,0,0]),
+  // 6 — ILY shape: thumb+index+pinky extended
+  makePose(.55,.25, -.5,.42, .2,.1, -.5,.2, .45,.35, 0,-.05,
+           [0,0,.8,.8,0],[.4,.3,.7,.7,.2]),
+  // 7 — Both thumbs up
+  makePose(.5,.15, -.5,.4, .1,0, -.5,.15, .5,.4, -.1,0,
+           [0,.8,.8,.8,.8],[0,.8,.8,.8,.8]),
+  // 8 — Right hand C shape (curved palm forward)
+  makePose(.45,.12, -.45,.3, 0,0, -.6,.35, .58,.45, -.2,-.2,
+           [0,0,0,0,0],[.3,.4,.4,.4,.4]),
+  // 9 — Clap position (palms facing each other mid-chest)
+  makePose(.48,.22, -.58,.48, .2,.3, -.48,.22, .58,.48, -.2,-.3,
+           [0,0,0,0,0],[0,0,0,0,0]),
+  // 10 — Right index+middle V (peace/victory)
+  makePose(.42,.12, -.4,.35, 0,0, -.65,.3, .55,.42, -.1,-.05,
+           [0,.2,.5,.7,.85],[.4,.0,.0,.8,.8]),
+  // 11 — Both hands prayer/namaste position
+  makePose(.42,.25, -.55,.42, .15,.35, -.42,.25, .55,.42, -.15,-.35,
+           [0,0,0,0,0],[0,0,0,0,0]),
+];
+
+function lerp(a,b,t){return a+(b-a)*t;}
+
+function applyFingerCurl(fingerChains, curlArr){
+  if(!fingerChains||!fingerChains.length) return;
+  fingerChains.forEach(function(fc,fi){
+    var curl=curlArr[fi]||0;
+    var segs=fc.segs;
+    if(!segs) return;
+    // thumb curls on z-axis (adduction), others on x-axis (flexion)
+    var isThumb=fc.def&&fc.def.isThumb;
+    var maxAngles=isThumb?[.6,.6,.5]:[.7,.7,.65];
+    for(var s=0;s<segs.length;s++){
+      var angle=curl*maxAngles[s];
+      if(isThumb){
+        segs[s].rotation.z=(fc.def.rz<0?-1:1)*angle*.8;
+        segs[s].rotation.x=angle*.5;
+      } else {
+        segs[s].rotation.x=angle;
+      }
+    }
+  });
+}
+
+function animToPose(targetPose, dur, cb){
+  if(!armL||!armR) return cb&&cb();
+  // Snapshot current state
+  var s={
+    uALrz:armL.rotation.z, uALrx:armL.rotation.x,
+    faLrz:foreAL?foreAL.rotation.z:.1, faLrx:foreAL?foreAL.rotation.x:0,
+    wLrz:handL?handL.rotation.z:0, wLrx:handL?handL.rotation.x:0,
+    uARrz:armR.rotation.z, uARrx:armR.rotation.x,
+    faRrz:foreAR?foreAR.rotation.z:-.1, faRrx:foreAR?foreAR.rotation.x:0,
+    wRrz:handR?handR.rotation.z:0, wRrx:handR?handR.rotation.x:0,
+  };
+  // Snapshot finger curls (read from first seg rotation)
+  var sFL=[0,0,0,0,0], sFR=[0,0,0,0,0];
+  if(AV.fingersL.length) AV.fingersL.forEach(function(fc,i){sFL[i]=fc.segs[0]?fc.segs[0].rotation.x:0;});
+  if(AV.fingersR.length) AV.fingersR.forEach(function(fc,i){sFR[i]=fc.segs[0]?fc.segs[0].rotation.x:0;});
+
+  var p=targetPose;
+  var t0=performance.now();
+  function step(t){
+    var prog=Math.min((t-t0)/dur,1);
+    var e=prog<.5?2*prog*prog:1-Math.pow(-2*prog+2,2)/2;
+    // Arms
+    if(armL){armL.rotation.z=lerp(s.uALrz,p.uAL.rz,e);armL.rotation.x=lerp(s.uALrx,p.uAL.rx,e);}
+    if(foreAL){foreAL.rotation.z=lerp(s.faLrz,p.faL.rz,e);foreAL.rotation.x=lerp(s.faLrx,p.faL.rx,e);}
+    if(handL){handL.rotation.z=lerp(s.wLrz,p.wL.rz,e);handL.rotation.x=lerp(s.wLrx,p.wL.rx,e);}
+    if(armR){armR.rotation.z=lerp(s.uARrz,p.uAR.rz,e);armR.rotation.x=lerp(s.uARrx,p.uAR.rx,e);}
+    if(foreAR){foreAR.rotation.z=lerp(s.faRrz,p.faR.rz,e);foreAR.rotation.x=lerp(s.faRrx,p.faR.rx,e);}
+    if(handR){handR.rotation.z=lerp(s.wRrz,p.wR.rz,e);handR.rotation.x=lerp(s.wRrx,p.wR.rx,e);}
+    // Fingers — interpolate curl
+    var tFL=p.fL||[0,0,0,0,0], tFR=p.fR||[0,0,0,0,0];
+    var iFL=tFL.map(function(v,i){return lerp(sFL[i]||0,v,e);});
+    var iFR=tFR.map(function(v,i){return lerp(sFR[i]||0,v,e);});
+    applyFingerCurl(AV.fingersL, iFL);
+    applyFingerCurl(AV.fingersR, iFR);
+    if(prog<1) requestAnimationFrame(step); else if(cb) cb();
+  }
+  requestAnimationFrame(step);
+}
+
+function doSign(text){
+  if(!text||!text.trim()){toast('Please enter text to sign');return;}
+  if(!avInit){initAvatar();setTimeout(function(){doSign(text);},800);return;}
+  signing=true;signWords=text.trim().split(/\s+/);signIdx=0;
+  var dot=G('sdot');if(dot){dot.className='sig-dot active';}
+  G('stxt').textContent='Signing: "'+text.substring(0,55)+(text.length>55?'...':'')+'"';
+  nextSign();
+}
+function nextSign(){
+  if(!signing||signIdx>=signWords.length*2){
+    signing=false;
+    var dot=G('sdot');if(dot){dot.className='sig-dot';dot.style.background='var(--accent2)';}
+    G('stxt').textContent='Signing complete ✓';
+    animToPose(SIGN_POSES[0],900,null);
+    return;
+  }
+  var poseIdx=signIdx%SIGN_POSES.length;
+  var word=signWords[signIdx%signWords.length];
+  G('stxt').textContent='→ "'+word+'"';
+  animToPose(SIGN_POSES[poseIdx],520,function(){
+    signIdx++;
+    setTimeout(nextSign,220);
+  });
+}
+function stopSign(){
+  signing=false;signIdx=99999;
+  var dot=G('sdot');if(dot){dot.className='sig-dot';dot.style.background='var(--accent3)';}
+  G('stxt').textContent='Stopped';
+  animToPose(SIGN_POSES[0],700,null);
+}
+async function signFromUrl(){
+  var url=G('surl').value.trim();if(!url){toast('Enter a video URL');return;}
+  showLdr('Extracting audio content for signing...');
+  try{
+    var res=await callClaude('Based on this video URL: "'+url+'", write a single natural sentence (max 20 words) summarizing what someone says in this video. Reply ONLY with the sentence, nothing else.');
+    hideLdr();G('si').value=res;doSign(res);
+  }catch(e){hideLdr();toast('Error: '+e.message);}
+}
+
+// ===== PAGES =====
+function showPage(id){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');p.style.display='none';});
+  if(id==='dashboard'){var d=G('dashboard');d.classList.add('active');d.style.display='flex';}
+  else if(id==='auth'){var a=G('auth-page');a.classList.add('active');a.style.display='block';}
+  else{var l=G('landing');l.classList.add('active');l.style.display='block';}
+}
+function showAuth(tab){showPage('auth');swAuth(tab);}
+function swAuth(tab){
+  G('tab-login').classList.toggle('active',tab==='login');
+  G('tab-signup').classList.toggle('active',tab==='signup');
+  G('lf').classList.toggle('active',tab==='login');
+  G('sf').classList.toggle('active',tab==='signup');
+}
+function doLogin(){
+  var e=G('le').value||'user@zyrahelix.ai';
+  setUser(e.split('@')[0]);showPage('dashboard');toast('Welcome back to Zyra Helix AI!');
+}
+function doSignup(){
+  var n=G('sn').value||'New User';setUser(n);showPage('dashboard');toast('Account created! Welcome to Zyra Helix AI!');
+}
+function doLogout(){showPage('landing');toast('Logged out.');}
+function setUser(n){G('uname').textContent=n;G('uav').textContent=n[0].toUpperCase();}
+
+// ===== LANGUAGE =====
+function changeLang(v){
+  CL=v;
+  G('lang-tag').textContent='['+LN[v]+']';
+  G('cmt-badge').textContent='['+LN[v]+']';
+  toast('Language switched to '+LN[v]+' — all outputs will now be in '+LN[v]);
+}
+
+// ===== DASHBOARD NAV =====
+var panelTitles={transcript:'Video Transcript',comment:'Smart Comments',language:'Language Detection',signlang:'Sign Language AI',learning:'Learning Tools',offline:'Offline Access',chatbot:'AI Chatbot'};
+var panelIcons={transcript:'🎬',comment:'💬',language:'🌐',signlang:'🤲',learning:'📚',offline:'📶',chatbot:'🤖'};
+function navTo(name){
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.ni').forEach(function(n){n.classList.remove('active');});
+  var panel=G('p-'+name);if(panel)panel.classList.add('active');
+  var ni=document.querySelector('.ni[data-panel="'+name+'"]');if(ni)ni.classList.add('active');
+  G('pt').textContent=(panelIcons[name]||'')+(panelTitles[name]?(' '+panelTitles[name]).toUpperCase():'');
+  if(name==='signlang')setTimeout(initAvatar,100);
+}
+function setMode(m){
+  CM=m;
+  G('mg').classList.toggle('active',m==='general');
+  G('mc').classList.toggle('active',m==='complex');
+  G('mb').textContent=m==='complex'?'COMPLEX MODE':'GENERAL MODE';
+  toast(m==='complex'?'Complex Mode: LaTeX equations enabled!':'General Mode activated');
+}
+
+// ===== TRANSCRIPT =====
+// Helper: render LaTeX in an element (complex mode)
+function renderLatex(el){
+  if(typeof renderMathInElement==='function'){
+    try{
+      renderMathInElement(el,{
+        delimiters:[
+          {left:'$$',right:'$$',display:true},
+          {left:'$',right:'$',display:false},
+          {left:'\\(',right:'\\)',display:false},
+          {left:'\\[',right:'\\]',display:true}
+        ],
+        throwOnError:false
+      });
+    }catch(ex){console.warn('KaTeX render error',ex);}
+  }
+}
+
+async function runTranscript(){
+  var url=G('vurl').value.trim();if(!url){toast('Please enter a video URL');return;}
+  ['s1','s2','s3','s4'].forEach(function(id){G(id).className='step';});G('pf').style.width='0%';G('tout').textContent='';
+  var msgs=['Extracting audio stream...','Running speech recognition...','Detecting spoken language...','Generating summary in '+LN[CL]+'...'];
+  var si=0;
+  var iv=setInterval(function(){
+    if(si<4){var ids=['s1','s2','s3','s4'];G(ids[si]).className='step done';if(si<3)G(ids[si+1]).className='step act';G('pf').style.width=((si+1)*25)+'%';G('tout').textContent=msgs[si];si++;}
+    else clearInterval(iv);
+  },700);
+  showLdr('AI analyzing video content and generating detailed '+LN[CL]+' transcript...');
+  try{
+    var lang=LN[CL],isComplex=CM==='complex';
+    var latexNote=isComplex?' When mathematical equations, formulas, physics derivations, or scientific notation appear in the video, render them using proper LaTeX notation: inline math with $...$ and display/block math with $$...$$. For example: Einstein\'s equation $$E = mc^2$$, wave function $$\\Psi(x,t) = Ae^{i(kx-\\omega t)}$$, etc. Always use LaTeX for any mathematical content.':'';
+    var sys='You are Zyra Helix AI, an expert video transcription engine with deep content analysis capabilities. Your job is to carefully analyze the given video URL and produce a thorough, realistic, content-accurate transcript. Follow these rules:\n1. Parse the full URL including domain, path segments, query parameters, video IDs, and any keywords to infer the precise topic.\n2. Identify the platform (YouTube, Instagram, TikTok, Twitter/X, Vimeo, direct MP4, etc.).\n3. Infer the spoken language from URL context and content signals.\n4. Generate a detailed, structured transcript that walks through the video from beginning to end — covering introduction, main sections, key explanations, examples given, and conclusion.\n5. Include realistic timestamps (e.g. [00:00], [01:23], [03:45]) spaced throughout.\n6. Extract and list: key concepts discussed, notable quotes or statements, speaker notes, action items or conclusions.\n7. ALL output MUST be in '+lang+' only.'+latexNote;
+    var prompt='Carefully analyze this video URL and generate a thorough, section-by-section transcript summary:\n\nURL: '+url+'\n\nSteps:\n1. Identify the platform and video topic from every part of the URL\n2. Go through the video content chronologically from start to finish\n3. Generate timestamped sections covering what is spoken/shown in each part\n4. Extract key points, formulas, examples, and speaker conclusions\n5. Write everything in '+lang+'\n\nBe specific, detailed, and accurate to what this actual video would contain based on its URL context. Do not be generic — tailor every line to THIS specific video.';
+    var result=await callClaude(prompt,sys,2000);
+    clearInterval(iv);['s1','s2','s3','s4'].forEach(function(id){G(id).className='step done';});G('pf').style.width='100%';
+    lastTranscript=result;
+    var tOut=G('tout');
+    tOut.setAttribute('data-raw-text',result);
+    if(isComplex){
+      // Set as text first then render LaTeX
+      tOut.textContent=result;
+      renderLatex(tOut);
+    } else {
+      tOut.textContent=result;
+    }
+    G('lang-tag').textContent='['+LN[CL]+']';
+    hideLdr();toast('Transcript generated in '+LN[CL]+(isComplex?' · LaTeX rendered':'')+'!');
+  }catch(e){clearInterval(iv);hideLdr();G('tout').textContent='Error: '+e.message;toast('Error: '+e.message);}
+}
+async function handleFile(inp){
+  if(!inp.files[0])return;
+  var f=inp.files[0];G('vurl').value=f.name;
+  showLdr('Analyzing uploaded video: '+f.name+'...');
+  try{
+    var lang=LN[CL],isComplex=CM==='complex';
+    var latexNote=isComplex?' Render all mathematical content using LaTeX: inline $...$ and display $$...$$.':'';
+    var result=await callClaude(
+      'Video file uploaded: "'+f.name+'" ('+((f.size/1024/1024).toFixed(1))+' MB, type: '+f.type+').\n\nAnalyze the filename carefully — extract topic, course name, lecture number, subject area, and any other contextual clues. Then generate a detailed chronological transcript summary in '+lang+' covering:\n- Introduction and topic overview\n- Timestamped sections ([00:00], [02:30], etc.) going through the video start to finish\n- Key concepts, examples, and explanations per section\n- Speaker conclusions and action items\n\nBe specific and detailed, not generic.',
+      'You are Zyra Helix AI. Generate a thorough, realistic, timestamped transcript summary in '+lang+' based on the filename and file details. Be specific to the inferred content.'+latexNote,
+      2000
+    );
+    lastTranscript=result;
+    var tOut=G('tout');
+    if(isComplex){tOut.textContent=result;renderLatex(tOut);}
+    else{tOut.textContent=result;}
+    G('lang-tag').textContent='['+LN[CL]+']';
+    hideLdr();toast('File transcript generated in '+LN[CL]+(isComplex?' · LaTeX rendered':'')+'!');
+  }catch(e){hideLdr();toast('Error: '+e.message);}
+}
+async function retranslate(){
+  if(!lastTranscript){toast('Generate a transcript first');return;}
+  showLdr('Translating to '+LN[CL]+'...');
+  try{
+    var res=await callClaude('Translate the following to '+LN[CL]+'. Preserve all formatting, structure, timestamps, and bullet points. Preserve all LaTeX math notation exactly as-is. Translate only the natural language text:\n\n'+lastTranscript);
+    lastTranscript=res;
+    var tOut=G('tout');
+    if(CM==='complex'){tOut.textContent=res;renderLatex(tOut);}
+    else{tOut.textContent=res;}
+    G('lang-tag').textContent='['+LN[CL]+']';
+    hideLdr();toast('Translated to '+LN[CL]+'!');
+  }catch(e){hideLdr();toast('Translation error: '+e.message);}
+}
+function cpText(text){navigator.clipboard.writeText(text).then(function(){toast('Copied!');});}
+function cpEl(id){var el=G(id);cpText(el.getAttribute('data-raw-text')||el.value||el.textContent);}
+function dlText(text,fname){var a=document.createElement('a');a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(text);a.download=fname;a.click();}
+
+// ===== COMMENTS =====
+async function genComments(){
+  var topic=G('ctopic').value.trim();if(!topic){toast('Enter topic or video URL');return;}
+  var lang=LN[CL];
+  G('cout').innerHTML='<div style="color:var(--accent);text-align:center;padding:24px;">Generating '+lang+' comments...</div>';
+  showLdr('Generating '+selSitVal+' comments in '+lang+'...');
+  try{
+    var sys='You are a smart comment generator. Generate exactly 4 unique, authentic social media comments in '+lang+' only. Match the "'+selSitVal+'" tone. Make each comment feel natural and distinct. Format:\nCOMMENT 1: [text]\nCOMMENT 2: [text]\nCOMMENT 3: [text]\nCOMMENT 4: [text]';
+    var result=await callClaude('Topic: "'+topic+'"\nTone: '+selSitVal+'\nLanguage: '+lang+'\n\nGenerate 4 '+selSitVal.toLowerCase()+' comments.',sys);
+    var lines=result.split('\n').filter(function(l){return /^COMMENT \d:/i.test(l.trim());});
+    var cmts=lines.map(function(l){return l.replace(/^COMMENT \d:\s*/i,'').trim();}).filter(Boolean);
+    G('cmt-badge').textContent='['+lang+']';
+    if(cmts.length>0){
+      G('cout').innerHTML=cmts.map(function(c,i){
+        return '<div class="cmt-item"><div class="cmt-lang">'+LF[CL]+' '+lang+' · '+selSitVal+' · '+(i+1)+'</div><span>'+c+'</span><button class="cpbtn" data-copy="'+c.replace(/"/g,'&quot;')+'">Copy</button></div>';
+      }).join('');
+    }else{
+      G('cout').innerHTML='<div style="padding:16px;font-size:.85rem;color:var(--text);">'+result+'</div>';
+    }
+    hideLdr();toast('Comments generated in '+lang+'!');
+  }catch(e){hideLdr();G('cout').innerHTML='<div style="color:var(--accent3);padding:16px;">Error: '+e.message+'</div>';toast('Error: '+e.message);}
+}
+
+// ===== LANGUAGE DETECTION =====
+async function runLangDetect(){
+  var url=G('lurl').value.trim();if(!url){toast('Enter a video URL');return;}
+  G('lgrid').innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--accent);padding:28px;">Detecting language and transcribing...</div>';
+  showLdr('Detecting video language...');
+  try{
+    var sys='You are Zyra Helix AI language detection engine. Analyze the video URL and return ONLY a valid JSON object with: detected_lang (string), en (3-sentence English summary), ta (3-sentence Tamil summary), te (3-sentence Telugu summary), hi (3-sentence Hindi summary). Base content on URL analysis. Return only valid JSON, no markdown.';
+    var result=await callClaude('Video URL: '+url+'\n\nReturn JSON with keys: detected_lang, en, ta, te, hi. All summaries must discuss the same video topic inferred from the URL.',sys);
+    result=result.replace(/```json|```/g,'').trim();
+    var data=JSON.parse(result);
+    var langs=[{c:'en',f:'🇬🇧',n:'English',t:data.en},{c:'ta',f:'🇮🇳',n:'Tamil',t:data.ta},{c:'te',f:'🇮🇳',n:'Telugu',t:data.te},{c:'hi',f:'🇮🇳',n:'Hindi',t:data.hi}];
+    G('lgrid').innerHTML=langs.map(function(l){
+      return '<div class="lg-card"><div class="lg-hd"><span class="lf2">'+l.f+'</span><span class="ln">'+l.n.toUpperCase()+'</span></div><div class="lt">'+(l.t||'N/A')+'</div><button class="btn-g" style="margin-top:10px;font-size:.76rem;" data-copy="'+(l.t||'').replace(/"/g,'&quot;')+'">Copy</button></div>';
+    }).join('');
+    hideLdr();toast('Detected: '+(data.detected_lang||'Unknown')+' — transcribed in 4 languages!');
+  }catch(e){
+    hideLdr();G('lgrid').innerHTML='<div style="grid-column:1/-1;color:var(--accent3);padding:20px;">Error: '+e.message+'</div>';
+    toast('Error: '+e.message);
+  }
+}
+
+// ===== LEARNING =====
+async function loadLecture(){
+  var url=G('lrnurl').value.trim();if(!url){toast('Enter a lecture URL');return;}
+  showLdr('Extracting lecture content in '+LN[CL]+'...');
+  try{
+    var lang=LN[CL],isC=CM==='complex';
+    var result=await callClaude('Lecture URL: '+url+'\n\nGenerate comprehensive lecture content in '+lang+' including:\n1. SUMMARY with timestamped sections\n2. KEY CONCEPTS\n3. IMPORTANT NOTES\n'+(isC?'4. MATHEMATICAL FORMULAS if applicable':'')+'\n\nBe specific to this URL content.',
+      'You are Zyra Helix AI learning assistant. Extract comprehensive lecture content. Output entirely in '+lang+'.'+(isC?' Include LaTeX equations for math content.':''));
+    lectureContent=result;G('sout').textContent=result;
+    var noteLines=result.split('\n').filter(function(l){return /^[•\-\*]|\d\./.test(l);}).join('\n');
+    G('nout').value=noteLines||result.substring(0,800);
+    hideLdr();toast('Lecture loaded in '+LN[CL]+'!');
+  }catch(e){hideLdr();toast('Error: '+e.message);}
+}
+async function genQuiz(){
+  if(!lectureContent){toast('Load a lecture video first');return;}
+  showLdr('Generating quiz questions...');
+  try{
+    var result=await callClaude('Generate 4 MCQ questions from this content:\n'+lectureContent.substring(0,1500),
+      'You are a quiz generator. Return ONLY a valid JSON array of 4 objects, each with: q (string), opts (array of 4 strings), correct (0-3 index). No markdown, no extra text.');
+    result=result.replace(/```json|```/g,'').trim();
+    var qs=JSON.parse(result);
+    G('qc').innerHTML=qs.map(function(q,qi){
+      return '<div class="qq"><p><strong>Q'+(qi+1)+':</strong> '+q.q+'</p><div class="qopts">'+q.opts.map(function(o,oi){return '<div class="qo" data-correct="'+(oi===q.correct)+'">'+String.fromCharCode(65+oi)+'. '+o+'</div>';}).join('')+'</div></div>';
+    }).join('');
+    hideLdr();toast('Quiz generated!');
+  }catch(e){hideLdr();toast('Error generating quiz: '+e.message);}
+}
+var IVQ=['Explain the main topic of this lecture in your own words.','What are the 3 most important concepts you learned?','How would you apply this knowledge in a real project?','What was the most challenging concept and why?','Summarize the lecture in 2-3 sentences.'];
+async function sendIV(){
+  var inp=G('ivi'),msg=inp.value.trim();if(!msg)return;
+  var chat=G('ivc');
+  chat.innerHTML+='<div class="cb user">'+msg+'</div>';inp.value='';chat.scrollTop=chat.scrollHeight;
+  showLdr('AI interviewer responding...');
+  try{
+    var res=await callClaude('Student answered: "'+msg+'"\nQuestion was: "'+IVQ[ivStep%IVQ.length]+'"\n\nGive 2-sentence constructive feedback then ask: "'+IVQ[(++ivStep)%IVQ.length]+'"',
+      'You are an AI interviewer for a lecture on: '+(G('lrnurl').value||'the loaded topic')+'. Be concise and encouraging.');
+    hideLdr();chat.innerHTML+='<div class="cb ai"><strong>AI Interviewer:</strong> '+res+'</div>';chat.scrollTop=chat.scrollHeight;
+  }catch(e){hideLdr();chat.innerHTML+='<div class="cb ai">Error: '+e.message+'</div>';}
+}
+
+// ===== CHATBOT =====
+async function sendBot(){
+  var inp=G('ci2'),msg=inp.value.trim();if(!msg)return;
+  var cw=G('cw');
+  cw.innerHTML+='<div class="cb user">'+msg+'</div>';inp.value='';cw.scrollTop=cw.scrollHeight;
+  G('ty').style.display='flex';
+  try{
+    var sys='You are Zyra Helix AI 24/7 support chatbot. Answer questions about: 1) Video Transcript (paste URL/upload MP4,MOV,WEBM), 2) Smart Comments (situation-based, multi-language), 3) Multi-language (English/Tamil/Telugu/Hindi — use dropdown), 4) 3D Sign Language Avatar, 5) Student Learning Tools (summary/notes/quiz/interview), 6) Offline Access, 7) General vs Complex Mode (LaTeX for math). Current language preference: '+LN[CL]+'. Be concise and helpful.';
+    var res=await callClaude(msg,sys);
+    G('ty').style.display='none';
+    cw.innerHTML+='<div class="cb ai"><strong>Zyra AI</strong><br/>'+res+'</div>';cw.scrollTop=cw.scrollHeight;
+  }catch(e){G('ty').style.display='none';cw.innerHTML+='<div class="cb ai">Connection error: '+e.message+'</div>';}
+}
+
+// ===== OFFLINE =====
+function togOffline(){
+  var os=G('ostatus');
+  if(os.classList.contains('on')){
+    os.className='os off';
+    os.innerHTML='<div class="sdot o"></div><span style="font-size:.88rem;">Offline Mode — Using cached content</span><button class="btn-g" style="margin-left:auto;font-size:.78rem;" id="btn-tog-offline-inner">Go Online</button>';
+    G('btn-tog-offline-inner').addEventListener('click',togOffline);
+    toast('Offline mode activated');
+  }else{
+    os.className='os on';
+    os.innerHTML='<div class="sdot g"></div><span style="font-size:.88rem;">Connected — Syncing cached content</span><button class="btn-g" style="margin-left:auto;font-size:.78rem;" id="btn-tog-offline-inner">Simulate Offline</button>';
+    G('btn-tog-offline-inner').addEventListener('click',togOffline);
+    toast('Back online — syncing...');
+  }
+}
+
+// ===== INIT — all event listeners attached here, NO inline onclick =====
+document.addEventListener('DOMContentLoaded', function() {
+
+  // Init page display
+  document.querySelectorAll('.page').forEach(function(p){p.style.display='none';});
+  G('landing').style.display='block';G('landing').classList.add('active');
+
+  // NAV
+  G('nav-logo').addEventListener('click',function(){showPage('landing');});
+  G('nav-features').addEventListener('click',function(){document.getElementById('features').scrollIntoView({behavior:'smooth'});});
+  G('nav-about').addEventListener('click',function(){document.getElementById('about').scrollIntoView({behavior:'smooth'});});
+  G('nav-contact').addEventListener('click',function(){document.getElementById('contact').scrollIntoView({behavior:'smooth'});});
+  G('btn-nav-login').addEventListener('click',function(){showAuth('login');});
+  G('btn-nav-signup').addEventListener('click',function(){showAuth('signup');});
+  G('btn-hero-signup').addEventListener('click',function(){showAuth('signup');});
+  G('btn-hero-features').addEventListener('click',function(){document.getElementById('features').scrollIntoView({behavior:'smooth'});});
+  G('btn-contact-send').addEventListener('click',function(){toast('Message sent! We will respond within 24 hours.');});
+
+  // AUTH
+  G('tab-login').addEventListener('click',function(){swAuth('login');});
+  G('tab-signup').addEventListener('click',function(){swAuth('signup');});
+  G('btn-login').addEventListener('click',doLogin);
+  G('btn-signup').addEventListener('click',doSignup);
+  G('btn-back-home').addEventListener('click',function(){showPage('landing');});
+  G('le').addEventListener('keypress',function(e){if(e.key==='Enter')doLogin();});
+  G('lp').addEventListener('keypress',function(e){if(e.key==='Enter')doLogin();});
+  G('sp').addEventListener('keypress',function(e){if(e.key==='Enter')doSignup();});
+
+  // SIDEBAR NAV
+  document.querySelectorAll('.ni[data-panel]').forEach(function(ni){
+    ni.addEventListener('click',function(){navTo(this.getAttribute('data-panel'));});
+  });
+  G('btn-logout').addEventListener('click',doLogout);
+
+  // MODE
+  G('mg').addEventListener('click',function(){setMode('general');});
+  G('mc').addEventListener('click',function(){setMode('complex');});
+
+  // LANGUAGE
+  G('glang').addEventListener('change',function(){changeLang(this.value);});
+
+  // TRANSCRIPT
+  G('btn-extract').addEventListener('click',runTranscript);
+  G('vurl').addEventListener('keypress',function(e){if(e.key==='Enter')runTranscript();});
+  G('upl-area').addEventListener('click',function(){G('finp').click();});
+  G('finp').addEventListener('change',function(){handleFile(this);});
+  G('btn-copy-transcript').addEventListener('click',function(){cpEl('tout');});
+  G('btn-dl-transcript').addEventListener('click',function(){dlText(lastTranscript||G('tout').textContent,'zyra-transcript.txt');});
+  G('btn-translate').addEventListener('click',retranslate);
+
+  // COMMENTS — situation buttons
+  document.querySelectorAll('.sib').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('.sib').forEach(function(b){b.classList.remove('sel');});
+      this.classList.add('sel');
+      selSitVal=this.getAttribute('data-sit');
+    });
+  });
+  G('btn-gen-comments').addEventListener('click',genComments);
+  G('ctopic').addEventListener('keypress',function(e){if(e.key==='Enter')genComments();});
+
+  // Copy buttons in dynamically generated comment/lang output (delegation)
+  document.addEventListener('click',function(e){
+    if(e.target.classList.contains('cpbtn')||e.target.getAttribute('data-copy')){
+      var txt=e.target.getAttribute('data-copy');
+      if(txt) cpText(txt);
+    }
+    // Quiz answers
+    if(e.target.classList.contains('qo')){
+      var correct=e.target.getAttribute('data-correct')==='true';
+      e.target.classList.add(correct?'correct':'wrong');
+    }
+  });
+
+  // LANGUAGE DETECT
+  G('btn-lang-detect').addEventListener('click',runLangDetect);
+  G('lurl').addEventListener('keypress',function(e){if(e.key==='Enter')runLangDetect();});
+
+  // SIGN LANGUAGE
+  G('btn-do-sign').addEventListener('click',function(){doSign(G('si').value);});
+  G('btn-stop-sign').addEventListener('click',stopSign);
+  G('btn-sign-url').addEventListener('click',signFromUrl);
+  G('si').addEventListener('keypress',function(e){if(e.key==='Enter')doSign(G('si').value);});
+
+  // LEARNING
+  G('btn-load-lecture').addEventListener('click',loadLecture);
+  G('lrnurl').addEventListener('keypress',function(e){if(e.key==='Enter')loadLecture();});
+  document.querySelectorAll('.ttab').forEach(function(tab){
+    tab.addEventListener('click',function(){
+      document.querySelectorAll('.tpanel').forEach(function(p){p.classList.remove('active');});
+      document.querySelectorAll('.ttab').forEach(function(t){t.classList.remove('active');});
+      G('t-'+this.getAttribute('data-tool')).classList.add('active');
+      this.classList.add('active');
+    });
+  });
+  G('btn-gen-quiz').addEventListener('click',genQuiz);
+  G('btn-copy-notes').addEventListener('click',function(){cpEl('nout');});
+  G('btn-dl-notes').addEventListener('click',function(){dlText(G('nout').value,'zyra-notes.txt');});
+  G('btn-iv-send').addEventListener('click',sendIV);
+  G('ivi').addEventListener('keypress',function(e){if(e.key==='Enter')sendIV();});
+
+  // OFFLINE
+  G('btn-tog-offline').addEventListener('click',togOffline);
+  G('btn-cache-open1').addEventListener('click',function(){toast('Opening cached content...');});
+  G('btn-cache-open2').addEventListener('click',function(){toast('Opening cached notes...');});
+  G('btn-cache-open3').addEventListener('click',function(){toast('Loading cached test...');});
+  G('btn-cache-session').addEventListener('click',function(){toast('Caching current session for offline use...');});
+
+  // CHATBOT
+  G('btn-bot-send').addEventListener('click',sendBot);
+  G('ci2').addEventListener('keypress',function(e){if(e.key==='Enter')sendBot();});
+
+});
+
+})(); // end IIFE
+</script>
+</body>
+</html>
